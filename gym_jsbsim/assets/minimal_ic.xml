@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<initialize name="reset00">
+  <!--
+    Dummy set of initial conditions.
+  -->
+</initialize>
