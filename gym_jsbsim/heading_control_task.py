@@ -63,6 +63,7 @@ class HeadingControlTask(BaseFlightTask):
 
         self.state_variables = state_var
         self.action_variables = action_var
+        self.last_action = None
 
         super().__init__(debug)
 
@@ -138,7 +139,21 @@ class HeadingControlTask(BaseFlightTask):
         # inverse of the proportional absolute value between the initial and current altitude ... 
         alt_r = 1.0/math.sqrt((0.1*last_state.position_delta_altitude_to_target_ft+1))
         #print(" -v- ", self.INITIAL_VELOCITY_U, last_state.velocities_u_fps, vel_r, " -h- ", self.INITIAL_HEADING_DEG, last_state.attitude_psi_deg, heading_r, " -a- ", self.INITIAL_ALTITUDE_FT, last_state.position_h_sl_ft, alt_r, " -r- ", (heading_r + alt_r + vel_r)/3.0)
-        return (heading_r + alt_r + vel_r)/3.0
+        # averaged squared difference betwen last action and new action
+        # assuming 4 continuous action
+        act_r = None
+        if self.last_action:
+            act_r = 0
+            for prp, last, new in zip(self.action_variables, self.last_action, action):
+                prp_range = prp.max - prp.min
+                act_diff_abs = math.fabs(last - new)
+                act_r += - (act_diff_abs / prp_range) ** 2
+            act_r /= 4 # assuming 4 actions, take the average
+        self.last_action = action
+        if act_r:
+            return (heading_r + alt_r + vel_r + act_r)/4.0
+        else:
+            return (heading_r + alt_r + vel_r)/3.0
     
     def _get_reward_cplx(self, sim: Simulation, last_state: NamedTuple, action: NamedTuple, new_state: NamedTuple) -> float:
         # Get   
@@ -163,6 +178,7 @@ class HeadingControlTask(BaseFlightTask):
         sim.set_throttle_mixture_controls(self.THROTTLE_CMD, self.MIXTURE_CMD)
         sim[self.steps_left] = self.steps_left.max
         sim[self.nb_episodes] += 1
+        self.last_action = None
 
     def get_props_to_output(self, sim: Simulation) -> Tuple:
         return (*self.state_variables, prp.lat_geod_deg, prp.lng_geoc_deg, self.steps_left)
