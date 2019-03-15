@@ -89,6 +89,7 @@ class BaseFlightTask(ABC):
             delta_h -= 360
         elif delta_h < -180:
             delta_h += 360
+        assert delta_h <= 180 and delta_h >= -180
         sim[prp.delta_heading] = delta_h
         sim[prp.delta_altitude] = sim[prp.altitude_sl_ft] - sim[prp.target_altitude_ft]
         #print(f'new heading = {sim[prp.heading_deg]}, target = {sim[prp.target_heading_deg]}, new delta heading = {state.position_delta_heading_to_target_deg} (from sim: {sim[prp.delta_heading]}')
