@@ -88,8 +88,8 @@ class HeadingControlTask(BaseFlightTask):
                               prp.all_engine_running: -1,
                               prp.initial_heading_deg: self.INITIAL_HEADING_DEG,
                               prp.initial_altitude_ft: self.INITIAL_ALTITUDE_FT,
-                              prp.delta_heading: min(360-math.fabs(self.INITIAL_HEADING_DEG - self.TARGET_HEADING_DEG), math.fabs(self.INITIAL_HEADING_DEG - self.TARGET_HEADING_DEG)),
-                              prp.delta_altitude: math.fabs(self.INITIAL_ALTITUDE_FT - self.TARGET_ALTITUDE_FT),
+                              prp.delta_heading: 0,
+                              prp.delta_altitude: 0,
                               prp.target_altitude_ft: self.TARGET_ALTITUDE_FT,
                               prp.target_heading_deg: self.TARGET_HEADING_DEG,
                               self.nb_episodes: 0
@@ -107,7 +107,7 @@ class HeadingControlTask(BaseFlightTask):
         
         terminal_step = sim[self.steps_left] <= 0
         #terminal_step = sim[prp.dist_travel_m]  >= 100000
-        return terminal_step or sim[prp.delta_altitude] >= 600 or sim[prp.delta_heading] >= 80
+        return terminal_step or sim[prp.delta_altitude] >= 600 or abs(sim[prp.delta_heading]) >= 80
     
     def _get_reward_with_heading(self, sim: Simulation, last_state: NamedTuple, action: NamedTuple, new_state: NamedTuple) -> float:
         '''
@@ -244,6 +244,7 @@ class ChangeHeadingControlTask(BaseFlightTask):
                               prp.all_engine_running: -1,
                               prp.initial_heading_deg: self.INITIAL_HEADING_DEG,
                               prp.initial_altitude_ft: self.INITIAL_ALTITUDE_FT,
+                              # TODO: Fix this for non-abs values
                               prp.delta_heading: min(360-math.fabs(self.INITIAL_HEADING_DEG - self.TARGET_HEADING_DEG), math.fabs(self.INITIAL_HEADING_DEG - self.TARGET_HEADING_DEG)),
                               prp.delta_altitude: math.fabs(self.INITIAL_ALTITUDE_FT - self.TARGET_ALTITUDE_FT),
                               prp.target_altitude_ft: self.TARGET_ALTITUDE_FT,
@@ -294,6 +295,7 @@ class ChangeHeadingControlTask(BaseFlightTask):
         Reward with delta and altitude heading directly in the input vector state.
         '''
         # inverse of the proportional absolute value of the minimal angle between the initial and current heading ... 
+        # TODO: Fix this for non-abs values
         heading_r = 1.0/math.sqrt((0.1*last_state.position_delta_heading_to_target_deg+1))
         # inverse of the proportional absolute value between the initial and current ground speed ... 
         vel_i = math.sqrt(math.pow(self.INITIAL_VELOCITY_U,2) + math.pow(self.INITIAL_VELOCITY_V,2)) 
