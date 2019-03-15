@@ -142,7 +142,7 @@ class HeadingControlTask(BaseFlightTask):
         accel_squared = 0
         for prop in [prp.n_pilot_x, prp.n_pilot_y, prp.n_pilot_z]:
             accel_squared += sim[prop] ** 2
-        accel = sqrt(accel_squared)
+        accel = math.sqrt(accel_squared)
         # inverse of the proportional absolute value between the acceleration and the neutral acceleration (1g)
         acc_r = 1.0 / math.sqrt(math.fabs(accel - 1) + 1)
         return (heading_r + alt_r + vel_r)/3.0 + acc_r
