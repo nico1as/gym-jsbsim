@@ -37,6 +37,11 @@ q_radps = BoundedProperty('velocities/q-rad_sec', 'pitch rate [rad/s]', -2 * mat
 r_radps = BoundedProperty('velocities/r-rad_sec', 'yaw rate [rad/s]', -2 * math.pi, 2 * math.pi)
 altitude_rate_fps = Property('velocities/h-dot-fps', 'rate of altitude change [ft/s]')
 
+# accelerations
+n_pilot_x = Property('accelerations/n-pilot-x-norm', 'pilot body x-axis acceleration, normalised')
+n_pilot_y = Property('accelerations/n-pilot-y-norm', 'pilot body y-axis acceleration, normalised')
+n_pilot_z = Property('accelerations/n-pilot-z-norm', 'pilot body z-axis acceleration, normalised')
+
 # controls state
 aileron_left = BoundedProperty('fcs/left-aileron-pos-norm', 'left aileron position, normalised', -1, 1)
 aileron_right = BoundedProperty('fcs/right-aileron-pos-norm', 'right aileron position, normalised', -1, 1)
@@ -102,6 +107,9 @@ prp_dict = {"altitude_sl_ft": altitude_sl_ft,
 	"q_radps": q_radps,
 	"r_radps": r_radps,
 	"altitude_rate_fps": altitude_rate_fps,
+	"n_pilot_x": n_pilot_x,
+	"n_pilot_y": n_pilot_y,
+	"n_pilot_z": n_pilot_z,
 	"aileron_left": aileron_left,
 	"aileron_right": aileron_right,
 	"elevator": elevator,
