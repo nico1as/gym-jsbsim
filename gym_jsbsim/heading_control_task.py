@@ -63,6 +63,7 @@ class HeadingControlTask(BaseFlightTask):
 
         self.state_variables = state_var
         self.action_variables = action_var
+        self.last_action = None
 
         super().__init__(debug)
 
@@ -142,6 +143,14 @@ class HeadingControlTask(BaseFlightTask):
         act_r = 0
         for act in action:
             act_r -= act ** 2
+        # averaged squared difference betwen last action and new action
+        # assuming 4 continuous action
+        if self.last_action:
+            for prp, last, new in zip(self.action_variables, self.last_action, action):
+                prp_range = prp.max - prp.min
+                act_diff = last - new
+                act_r -= (act_diff / prp_range) ** 2
+        self.last_action = action
         act_r /= 4 # assuming 4 actions, take the average
         return (heading_r + alt_r + vel_r + act_r)/4.0
     
@@ -168,6 +177,7 @@ class HeadingControlTask(BaseFlightTask):
         sim.set_throttle_mixture_controls(self.THROTTLE_CMD, self.MIXTURE_CMD)
         sim[self.steps_left] = self.steps_left.max
         sim[self.nb_episodes] += 1
+        self.last_action = None
 
     def get_props_to_output(self, sim: Simulation) -> Tuple:
         return (*self.state_variables, prp.lat_geod_deg, prp.lng_geoc_deg, self.steps_left)
