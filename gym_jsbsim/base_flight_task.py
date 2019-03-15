@@ -84,7 +84,11 @@ class BaseFlightTask(ABC):
 
         # update delta heading and altitude according to the new heading and altitude
         delta_h = sim[prp.heading_deg] - sim[prp.target_heading_deg] 
-        # delta_h is in (-360, 360)
+        if delta_h > 360:
+            delta_h = delta_h % 360
+        elif delta_h < -360:
+            delta_h = delta_h % 360 - 360
+        assert delta_h <= 360 and delta_h >= -360
         if delta_h > 180:
             delta_h -= 360
         elif delta_h < -180:
