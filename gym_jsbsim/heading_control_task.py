@@ -130,13 +130,13 @@ class HeadingControlTask(BaseFlightTask):
         Reward with delta and altitude heading directly in the input vector state.
         '''
         # inverse of the proportional absolute value of the minimal angle between the initial and current heading ... 
-        heading_r = 1.0/math.sqrt((0.1*math.abs(last_state.position_delta_heading_to_target_deg)+1))
+        heading_r = 1.0/math.sqrt((0.1*math.fabs(last_state.position_delta_heading_to_target_deg)+1))
         # inverse of the proportional absolute value between the initial and current ground speed ... 
         vel_i = math.sqrt(math.pow(self.INITIAL_VELOCITY_U,2) + math.pow(self.INITIAL_VELOCITY_V,2)) 
         vel_c = math.sqrt(math.pow(last_state.velocities_u_fps,2) + math.pow(last_state.velocities_v_fps,2)) 
         vel_r = 1.0/math.sqrt((0.1*math.fabs(vel_i - vel_c)+1))
         # inverse of the proportional absolute value between the initial and current altitude ... 
-        alt_r = 1.0/math.sqrt((0.1*math.abs(last_state.position_delta_altitude_to_target_ft)+1))
+        alt_r = 1.0/math.sqrt((0.1*math.fabs(last_state.position_delta_altitude_to_target_ft)+1))
         #print(" -v- ", self.INITIAL_VELOCITY_U, last_state.velocities_u_fps, vel_r, " -h- ", self.INITIAL_HEADING_DEG, last_state.attitude_psi_deg, heading_r, " -a- ", self.INITIAL_ALTITUDE_FT, last_state.position_h_sl_ft, alt_r, " -r- ", (heading_r + alt_r + vel_r)/3.0)
         roll_r = 1.0 / math.sqrt(math.fabs(last_state.attitude_roll_rad) + 1)
         # penalize acceleration that deviates from neutral acceleration (1g)
