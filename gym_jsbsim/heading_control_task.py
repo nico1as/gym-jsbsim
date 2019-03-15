@@ -138,7 +138,14 @@ class HeadingControlTask(BaseFlightTask):
         # inverse of the proportional absolute value between the initial and current altitude ... 
         alt_r = 1.0/math.sqrt((0.1*last_state.position_delta_altitude_to_target_ft+1))
         #print(" -v- ", self.INITIAL_VELOCITY_U, last_state.velocities_u_fps, vel_r, " -h- ", self.INITIAL_HEADING_DEG, last_state.attitude_psi_deg, heading_r, " -a- ", self.INITIAL_ALTITUDE_FT, last_state.position_h_sl_ft, alt_r, " -r- ", (heading_r + alt_r + vel_r)/3.0)
-        return (heading_r + alt_r + vel_r)/3.0
+        # penalize acceleration that deviates from neutral acceleration (1g)
+        accel_squared = 0
+        for prop in [prp.n_pilot_x, prp.n_pilot_y, prp.n_pilot_z]:
+            accel_squared += sim[prop] ** 2
+        accel = sqrt(accel_squared)
+        # inverse of the proportional absolute value between the acceleration and the neutral acceleration (1g)
+        acc_r = 1.0 / math.sqrt(math.fabs(accel - 1) + 1)
+        return (heading_r + alt_r + vel_r)/3.0 + acc_r
     
     def _get_reward_cplx(self, sim: Simulation, last_state: NamedTuple, action: NamedTuple, new_state: NamedTuple) -> float:
         # Get   
