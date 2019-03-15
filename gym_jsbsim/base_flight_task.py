@@ -83,9 +83,14 @@ class BaseFlightTask(ABC):
         self._update_custom_properties(sim)
 
         # update delta heading and altitude according to the new heading and altitude
-        abs_h = math.fabs(sim[prp.target_heading_deg] - sim[prp.heading_deg])
-        sim[prp.delta_heading] = min(360-abs_h, abs_h)
-        sim[prp.delta_altitude] = math.fabs(sim[prp.target_altitude_ft] - sim[prp.altitude_sl_ft])
+        delta_h = sim[prp.heading_deg] - sim[prp.target_heading_deg] 
+        # delta_h is in (-360, 360)
+        if delta_h > 180:
+            delta_h -= 360
+        elif delta_h < -180:
+            delta_h += 360
+        sim[prp.delta_heading] = delta_h
+        sim[prp.delta_altitude] = sim[prp.altitude_sl_ft] - sim[prp.target_altitude_ft]
         #print(f'new heading = {sim[prp.heading_deg]}, target = {sim[prp.target_heading_deg]}, new delta heading = {state.position_delta_heading_to_target_deg} (from sim: {sim[prp.delta_heading]}')
 
         state = self.State(*(sim[prop] for prop in self.state_variables))
