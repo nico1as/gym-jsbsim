@@ -88,8 +88,8 @@ class HeadingControlTask(BaseFlightTask):
                               prp.all_engine_running: -1,
                               prp.initial_heading_deg: self.INITIAL_HEADING_DEG,
                               prp.initial_altitude_ft: self.INITIAL_ALTITUDE_FT,
-                              prp.delta_heading: 0,
-                              prp.delta_altitude: 0,
+                              prp.delta_heading: 0.,
+                              prp.delta_altitude: 0.,
                               prp.target_altitude_ft: self.TARGET_ALTITUDE_FT,
                               prp.target_heading_deg: self.TARGET_HEADING_DEG,
                               self.nb_episodes: 0
@@ -107,7 +107,7 @@ class HeadingControlTask(BaseFlightTask):
         
         terminal_step = sim[self.steps_left] <= 0
         #terminal_step = sim[prp.dist_travel_m]  >= 100000
-        return terminal_step or sim[prp.delta_altitude] >= 600 or abs(sim[prp.delta_heading]) >= 80
+        return terminal_step or math.fabs(sim[prp.delta_altitude]) >= 600 or math.fabs(sim[prp.delta_heading]) >= 80
     
     def _get_reward_with_heading(self, sim: Simulation, last_state: NamedTuple, action: NamedTuple, new_state: NamedTuple) -> float:
         '''
