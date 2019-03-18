@@ -36,6 +36,16 @@ p_radps = BoundedProperty('velocities/p-rad_sec', 'roll rate [rad/s]', -2 * math
 q_radps = BoundedProperty('velocities/q-rad_sec', 'pitch rate [rad/s]', -2 * math.pi, 2 * math.pi)
 r_radps = BoundedProperty('velocities/r-rad_sec', 'yaw rate [rad/s]', -2 * math.pi, 2 * math.pi)
 altitude_rate_fps = Property('velocities/h-dot-fps', 'rate of altitude change [ft/s]')
+phi_dot = BoundedProperty('velocities/phidot-rad_sec', 'rad/s', -2 * math.pi, 2 * math.pi)
+theta_dot = BoundedProperty('velocities/thetadot-rad_sec', 'rad/s', -2 * math.pi, 2 * math.pi)
+v_air = BoundedProperty('velocities/vc-fps', 'airspeed in knots', 0, 4400)
+
+# Acceleration
+p_dot = BoundedProperty('accelerations/pdot-rad_sec2', 'rad/s²',  -(8/180) * math.pi, (8/180) * math.pi)
+q_dot = BoundedProperty('accelerations/qdot-rad_sec2', 'rad/s²',  -(8/180) * math.pi, (8/180) * math.pi)
+r_dot = BoundedProperty('accelerations/rdot-rad_sec2', 'rad/s²',  -(8/180) * math.pi, (8/180) * math.pi)
+v_dot = BoundedProperty('accelerations/vdot-ft_sec2', 'ft/s²', -4.0, 4.0)
+w_dot = BoundedProperty('accelerations/wdot-ft_sec2', 'ft/s²', -4.0, 4.0)
 
 # accelerations
 n_pilot_x = Property('accelerations/n-pilot-x-norm', 'pilot body x-axis acceleration, normalised')
@@ -142,7 +152,17 @@ prp_dict = {"altitude_sl_ft": altitude_sl_ft,
 	"initial_roc_fpm": initial_roc_fpm,
 	"initial_heading_deg": initial_heading_deg,
 	"target_altitude_ft": target_altitude_ft,
-	"target_heading_deg": target_heading_deg} 
+	"target_heading_deg": target_heading_deg,
+	"p_dot": p_dot,
+	"q_dot": q_dot,
+	"r_dot": r_dot,
+	"v_dot": v_dot,
+	"w_dot": w_dot,
+	"phi_dot": phi_dot,
+	"theta_dot": theta_dot,
+	"v_air": v_air,
+
+	}
 
 
 class Vector2(object):
