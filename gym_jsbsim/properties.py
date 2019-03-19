@@ -59,7 +59,6 @@ elevator = BoundedProperty('fcs/elevator-pos-norm', 'elevator position, normalis
 rudder = BoundedProperty('fcs/rudder-pos-norm', 'rudder position, normalised', -1, 1)
 flap = BoundedProperty('fcs/flap-pos-norm', 'flap position, normalised', 0, 1)
 speedbrake = BoundedProperty('fcs/speedbrake-pos-norm', 'speedbrake position, normalised', 0, 1)
-gear = BoundedProperty('fcs/gear-pos-norm', 'gear position, normalised', 0, 1)
 throttle = BoundedProperty('fcs/throttle-pos-norm', 'throttle position, normalised', 0, 1)
 gear = BoundedProperty('gear/gear-pos-norm', 'landing gear position, normalised', 0, 1)
 
