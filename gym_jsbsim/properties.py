@@ -57,6 +57,9 @@ aileron_left = BoundedProperty('fcs/left-aileron-pos-norm', 'left aileron positi
 aileron_right = BoundedProperty('fcs/right-aileron-pos-norm', 'right aileron position, normalised', -1, 1)
 elevator = BoundedProperty('fcs/elevator-pos-norm', 'elevator position, normalised', -1, 1)
 rudder = BoundedProperty('fcs/rudder-pos-norm', 'rudder position, normalised', -1, 1)
+flap = BoundedProperty('fcs/flap-pos-norm', 'flap position, normalised', 0, 1)
+speedbrake = BoundedProperty('fcs/speedbrake-pos-norm', 'speedbrake position, normalised', 0, 1)
+gear = BoundedProperty('fcs/gear-pos-norm', 'gear position, normalised', 0, 1)
 throttle = BoundedProperty('fcs/throttle-pos-norm', 'throttle position, normalised', 0, 1)
 gear = BoundedProperty('gear/gear-pos-norm', 'landing gear position, normalised', 0, 1)
 
@@ -74,6 +77,11 @@ mixture_cmd = BoundedProperty('fcs/mixture-cmd-norm', 'engine mixture setting, n
 throttle_1_cmd = BoundedProperty('fcs/throttle-cmd-norm[1]', 'throttle 1 commanded position, normalised', 0., 1.)
 mixture_1_cmd = BoundedProperty('fcs/mixture-cmd-norm[1]', 'engine mixture 1 setting, normalised', 0., 1.)
 gear_all_cmd = BoundedProperty('gear/gear-cmd-norm', 'all landing gear commanded position, normalised', 0, 1)
+
+# trim commands
+pitch_trim = BoundedProperty('fcs/pitch-trim-cmd-norm', 'pitch trim command, normalised', -1, 1)
+roll_trim = BoundedProperty('fcs/roll-trim-cmd-norm', 'roll trim command, normalised', -1, 1)
+yaw_trim = BoundedProperty('fcs/yaw-trim-cmd-norm', 'yaw trim command, normalised', -1, 1)
 
 # simulation
 sim_dt = Property('simulation/dt', 'JSBSim simulation timestep [s]')
