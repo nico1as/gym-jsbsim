@@ -141,7 +141,7 @@ class HeadingControlTask(BaseFlightTask):
         non_vertical_accel_squared = 0
         for prop in [prp.n_pilot_y, prp.n_pilot_z]:
             non_vertical_accel_squared += sim[prop] ** 2
-        non_vertical_accel = math.sqrt(accel_squared)
+        non_vertical_accel = math.sqrt(non_vertical_accel_squared)
         # decreases with the absolute value between the acceleration and the neutral acceleration (1g)
         acc_r = 1.0
         # stays positive in range (-2.5, 0.5) # TODO: make (-2.5, 1.0), which corresponds to operational limits
