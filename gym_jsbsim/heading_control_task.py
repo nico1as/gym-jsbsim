@@ -136,7 +136,7 @@ class HeadingControlTask(BaseFlightTask):
         alt_r = 1.0/math.sqrt((0.1*math.fabs(last_state.position_delta_altitude_to_target_ft)+1))
         # decrease with the absolute value of the roll angle ... 
         # A320 roll angle should stay within +-33deg=0.576rad
-        roll_r = 1.0 - math.sqrt((math.fabs(last_state.roll_rad) / 0.576)
+        roll_r = 1.0 - math.sqrt((math.fabs(last_state.roll_rad) / 0.576))
         # penalize acceleration that deviates from neutral acceleration (1g)
         non_vertical_accel_squared = 0
         for prop in [prp.n_pilot_y, prp.n_pilot_z]:
