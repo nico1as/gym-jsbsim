@@ -109,7 +109,7 @@ class HeadingControlTask(BaseFlightTask):
         terminal_step = sim[self.steps_left] <= 0
         #terminal_step = sim[prp.dist_travel_m]  >= 100000
         return terminal_step or math.fabs(sim[prp.delta_altitude]) >= 600 or math.fabs(sim[prp.delta_heading]) >= 80
-    
+
     def _get_reward_with_heading(self, sim: Simulation, last_state: NamedTuple, action: NamedTuple, new_state: NamedTuple) -> float:
         '''
         reward with current heading and initial heading
@@ -125,7 +125,7 @@ class HeadingControlTask(BaseFlightTask):
         alt_r = 1.0/math.sqrt((0.1*math.fabs(self.INITIAL_ALTITUDE_FT - last_state.position_h_sl_ft)+1))
         #print(" -v- ", self.INITIAL_VELOCITY_U, last_state.velocities_u_fps, vel_r, " -h- ", self.INITIAL_HEADING_DEG, last_state.attitude_psi_deg, heading_r, " -a- ", self.INITIAL_ALTITUDE_FT, last_state.position_h_sl_ft, alt_r, " -r- ", (heading_r + alt_r + vel_r)/3.0)
         return (heading_r + alt_r + vel_r)/3.0
-    
+
     def _get_reward(self, sim: Simulation, last_state: NamedTuple, action: NamedTuple, new_state: NamedTuple) -> float:
         '''
         Reward with delta and altitude heading directly in the input vector state.
@@ -148,8 +148,11 @@ class HeadingControlTask(BaseFlightTask):
         acc_r -= math.sqrt(math.fabs(sim[prp.n_pilot_x] + 1) / 1.5)
         # penalize frontal and lateral acceleration
         acc_r -= math.sqrt(non_vertical_accel)
+        # set lower limit
+        roll_r = max(roll_r, -1.)
+        acc_r = max(acc_r, -1.)
         return (heading_r + alt_r)/2.0 + roll_r + acc_r
-    
+
     def _get_reward_cplx(self, sim: Simulation, last_state: NamedTuple, action: NamedTuple, new_state: NamedTuple) -> float:
         # Get   
         track_deg = prp.Vector2(last_state.velocities_v_east_fps, last_state.velocities_v_north_fps).heading_deg()
