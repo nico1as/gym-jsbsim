@@ -48,9 +48,9 @@ v_dot = BoundedProperty('accelerations/vdot-ft_sec2', 'ft/s²', -4.0, 4.0)
 w_dot = BoundedProperty('accelerations/wdot-ft_sec2', 'ft/s²', -4.0, 4.0)
 
 # accelerations
-n_pilot_x = Property('accelerations/n-pilot-x-norm', 'pilot body x-axis acceleration, normalised')
-n_pilot_y = Property('accelerations/n-pilot-y-norm', 'pilot body y-axis acceleration, normalised')
-n_pilot_z = Property('accelerations/n-pilot-z-norm', 'pilot body z-axis acceleration, normalised')
+n_pilot_x = BoundedProperty('accelerations/n-pilot-x-norm', 'pilot body x-axis acceleration, normalised', -10., 10.)
+n_pilot_y = BoundedProperty('accelerations/n-pilot-y-norm', 'pilot body y-axis acceleration, normalised', -10., 10.)
+n_pilot_z = BoundedProperty('accelerations/n-pilot-z-norm', 'pilot body z-axis acceleration, normalised', -10., 10.)
 
 # controls state
 aileron_left = BoundedProperty('fcs/left-aileron-pos-norm', 'left aileron position, normalised', -1, 1)
