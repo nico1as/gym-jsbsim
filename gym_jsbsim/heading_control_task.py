@@ -132,21 +132,23 @@ class HeadingControlTask(BaseFlightTask):
         '''
         # inverse of the proportional absolute value of the minimal angle between the initial and current heading ... 
         heading_r = 1.0/math.sqrt((0.1*math.fabs(last_state.position_delta_heading_to_target_deg)+1))
-        # inverse of the proportional absolute value between the initial and current ground speed ... 
-        vel_i = math.sqrt(math.pow(self.INITIAL_VELOCITY_U,2) + math.pow(self.INITIAL_VELOCITY_V,2)) 
-        vel_c = math.sqrt(math.pow(last_state.velocities_u_fps,2) + math.pow(last_state.velocities_v_fps,2)) 
-        vel_r = 1.0/math.sqrt((0.1*math.fabs(vel_i - vel_c)+1))
         # inverse of the proportional absolute value between the initial and current altitude ... 
         alt_r = 1.0/math.sqrt((0.1*math.fabs(last_state.position_delta_altitude_to_target_ft)+1))
-        #print(" -v- ", self.INITIAL_VELOCITY_U, last_state.velocities_u_fps, vel_r, " -h- ", self.INITIAL_HEADING_DEG, last_state.attitude_psi_deg, heading_r, " -a- ", self.INITIAL_ALTITUDE_FT, last_state.position_h_sl_ft, alt_r, " -r- ", (heading_r + alt_r + vel_r)/3.0)
+        # decrease with the absolute value of the roll angle ... 
+        # A320 roll angle should stay within +-33deg=0.576rad
+        roll_r = 1.0 - math.sqrt((math.fabs(last_state.roll_rad) / 0.576)
         # penalize acceleration that deviates from neutral acceleration (1g)
-        accel_squared = 0
-        for prop in [prp.n_pilot_x, prp.n_pilot_y, prp.n_pilot_z]:
-            accel_squared += sim[prop] ** 2
-        accel = math.sqrt(accel_squared)
-        # inverse of the proportional absolute value between the acceleration and the neutral acceleration (1g)
-        acc_r = 1.0 / math.sqrt(math.fabs(accel - 1) + 1)
-        return (heading_r + alt_r + vel_r)/3.0 + acc_r
+        non_vertical_accel_squared = 0
+        for prop in [prp.n_pilot_y, prp.n_pilot_z]:
+            non_vertical_accel_squared += sim[prop] ** 2
+        non_vertical_accel = math.sqrt(accel_squared)
+        # decreases with the absolute value between the acceleration and the neutral acceleration (1g)
+        acc_r = 1.0
+        # stays positive in range (-2.5, 0.5) # TODO: make (-2.5, 1.0), which corresponds to operational limits
+        acc_r -= math.sqrt(math.fabs(prp.n_pilot + 1) / 1.5)
+        # penalize frontal and lateral acceleration
+        acc_r -= math.sqrt(non_vertical_accel)
+        return (heading_r + alt_r)/2.0 + roll_r + acc_r
     
     def _get_reward_cplx(self, sim: Simulation, last_state: NamedTuple, action: NamedTuple, new_state: NamedTuple) -> float:
         # Get   
