@@ -87,6 +87,7 @@ class HeadingControlTask(BaseFlightTask):
                               prp.initial_r_radps: 0,
                               prp.initial_roc_fpm: 0,
                               prp.all_engine_running: -1,
+                              prp.
                               prp.initial_heading_deg: self.INITIAL_HEADING_DEG,
                               prp.initial_altitude_ft: self.INITIAL_ALTITUDE_FT,
                               prp.delta_heading: reduce_reflex_angle_deg(self.INITIAL_HEADING_DEG - self.TARGET_HEADING_DEG),
@@ -110,12 +111,9 @@ class HeadingControlTask(BaseFlightTask):
         #terminal_step = sim[prp.dist_travel_m]  >= 100000
 
         # acceleration termination
-        non_vertical_accel_squared = 0
-        for prop in [prp.n_pilot_y, prp.n_pilot_z]:
-            non_vertical_accel_squared += sim[prop] ** 2
-        non_vertical_accel = math.sqrt(non_vertical_accel_squared)
-        vertical_accel = sim[prp.n_pilot_x]
-        accel_termination = vertical_accel < -2.5 or vertical_accel > 0.5 or non_vertical_accel > 1.0
+        non_vertical_accel = math.sqrt(sim[prp.n_pilot_x] ** 2 + sim[prp.n_pilot_y] ** 2)
+        vertical_accel = sim[prp.n_pilot_z]
+        accel_termination = vertical_accel < -2.5 or vertical_accel > 1.0 or non_vertical_accel > 1.0
 
         return terminal_step or math.fabs(sim[prp.delta_altitude]) >= 600 or accel_termination #or math.fabs(sim[prp.delta_heading]) >= 80
 
@@ -147,14 +145,11 @@ class HeadingControlTask(BaseFlightTask):
         # A320 roll angle should stay within +-33deg=0.576rad
         roll_r = 1.0 - math.sqrt((math.fabs(last_state.attitude_roll_rad) / 0.576))
         # penalize acceleration that deviates from neutral acceleration (1g)
-        non_vertical_accel_squared = 0
-        for prop in [prp.n_pilot_y, prp.n_pilot_z]:
-            non_vertical_accel_squared += sim[prop] ** 2
-        non_vertical_accel = math.sqrt(non_vertical_accel_squared)
+        non_vertical_accel = math.sqrt(sim[prp.n_pilot_x] ** 2 + sim[prp.n_pilot_y] ** 2)
         # decreases with the absolute value between the acceleration and the neutral acceleration (1g)
         acc_r = 1.0
         # stays positive in range (-2.5, 0.5) # TODO: make (-2.5, 1.0), which corresponds to operational limits
-        acc_r -= math.sqrt(math.fabs(sim[prp.n_pilot_x] + 1) / 1.5)
+        acc_r -= math.sqrt(math.fabs(sim[prp.n_pilot_z] + 1) / 1.5)
         # penalize frontal and lateral acceleration
         acc_r -= math.sqrt(non_vertical_accel)
         roll_r = max(roll_r, 0)
