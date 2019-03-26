@@ -28,6 +28,7 @@ class JsbSimEnv(gym.Env):
     docstrings have been adapted or copied from the OpenAI Gym source code.
     """
     JSBSIM_DT_HZ: int = 60  # JSBSim integration frequency
+    MIN_SECONDS_FOR_ACTION_RANGE: float = 2 # Seconds to change action from one extreme to the other
     metadata = {'render.modes': ['human', 'flightgear']}
 
     def __init__(self, task_type: Type[BaseFlightTask], aircraft: Aircraft = cessna172P,
@@ -56,6 +57,9 @@ class JsbSimEnv(gym.Env):
         self.figure_visualiser: FigureVisualiser = None
         self.flightgear_visualiser: FlightGearVisualiser = None
         self.step_delay = None
+        self.last_action = None
+        action_range = np.abs(self.action_space.high - self.action_space.low)
+        self.action_change_limit = action_range / (agent_interaction_freq * self.MIN_SECONDS_FOR_ACTION_RANGE)
 
         try:
             self._NUM_THREADS = 100
@@ -80,6 +84,12 @@ class JsbSimEnv(gym.Env):
         if not (action.shape == self.action_space.shape):
             raise ValueError('mismatch between action and action space size')
 
+        # constrain changes in action
+        self.last_action += np.clip(action - self.last_action,
+                                    -self.action_change_limit,
+                                    self.action_change_limit)
+        action = self.last_action
+
         state, reward, done, info = self.task.task_step(self.sim, action, self.sim_steps_per_agent_step)
         return np.array(state), reward, done, info
 
@@ -96,6 +106,7 @@ class JsbSimEnv(gym.Env):
             self.sim = self._init_new_sim(self.JSBSIM_DT_HZ, self.aircraft, init_conditions)
 
         state = self.task.observe_first_state(self.sim)
+        self.last_action = np.asarray([self.sim[prop] for prop in self.task.action_variables])
 
         if self.flightgear_visualiser:
             self.flightgear_visualiser.configure_simulation_output(self.sim)
