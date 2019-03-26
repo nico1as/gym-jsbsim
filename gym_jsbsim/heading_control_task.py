@@ -87,7 +87,6 @@ class HeadingControlTask(BaseFlightTask):
                               prp.initial_r_radps: 0,
                               prp.initial_roc_fpm: 0,
                               prp.all_engine_running: -1,
-                              prp.
                               prp.initial_heading_deg: self.INITIAL_HEADING_DEG,
                               prp.initial_altitude_ft: self.INITIAL_ALTITUDE_FT,
                               prp.delta_heading: reduce_reflex_angle_deg(self.INITIAL_HEADING_DEG - self.TARGET_HEADING_DEG),
