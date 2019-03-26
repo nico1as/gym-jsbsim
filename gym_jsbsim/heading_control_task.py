@@ -148,7 +148,9 @@ class HeadingControlTask(BaseFlightTask):
         acc_r -= math.sqrt(math.fabs(sim[prp.n_pilot_x] + 1) / 1.5)
         # penalize frontal and lateral acceleration
         acc_r -= math.sqrt(non_vertical_accel)
-        return (heading_r + alt_r)/2.0 + roll_r + acc_r
+        roll_r = max(roll_r, 0)
+        acc_r = max(acc_r, 0)
+        return (heading_r + alt_r)/2.0 * roll_r * acc_r
 
     def _get_reward_cplx(self, sim: Simulation, last_state: NamedTuple, action: NamedTuple, new_state: NamedTuple) -> float:
         # Get   
