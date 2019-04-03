@@ -28,7 +28,7 @@ class JsbSimEnv(gym.Env):
     docstrings have been adapted or copied from the OpenAI Gym source code.
     """
     JSBSIM_DT_HZ: int = 60  # JSBSim integration frequency
-    MIN_SECONDS_FOR_ACTION_RANGE: float = 2 # Seconds to change action from one extreme to the other
+    MIN_SECONDS_FOR_ACTION_RANGE: float = 10 # Seconds to change action from one extreme to the other
     metadata = {'render.modes': ['human', 'flightgear']}
 
     def __init__(self, task_type: Type[BaseFlightTask], aircraft: Aircraft = cessna172P,
