@@ -68,39 +68,37 @@ class HeadingControlTask(Task):
                         c.steady_flight:150
     }
 
-
     def get_reward(self, state, sim):
         '''
-        Reward with delta and altitude heading directly in the input vector state.
+        Compute reward for HeadingControlTask
         '''
-        # inverse of the proportional absolute value of the minimal angle between the initial and current heading ...
-        heading_r = math.exp(-math.fabs(sim.get_property_value(c.delta_heading)))
+        # reward signal is built as a geometric mean of scaled gaussian rewards for each relevant variable
 
-        # inverse of the proportional absolute value between the initial and current altitude ...
-        alt_r = math.exp(-math.fabs(sim.get_property_value(c.delta_altitude)))
+        heading_error_scale = 5. # degrees
+        heading_r = math.exp(-(sim.get_property_value(c.delta_heading)/heading_error_scale)**2)
 
-        # inverse of the normalised value of q, r, p acceleartion
-        angle_speed_r = math.exp(-(0.1*math.fabs(sim.get_property_value(c.accelerations_a_pilot_x_ft_sec2)) + 
-                                0.1*math.fabs(sim.get_property_value(c.accelerations_a_pilot_y_ft_sec2)) + 
-                                0.8*math.fabs(sim.get_property_value(c.accelerations_a_pilot_z_ft_sec2))))
-        #angle_speed_r = math.exp(-(10*math.fabs(sim.get_property_value(c.velocities_q_rad_sec)*180/math.pi)))
+        alt_error_scale = 100. # degrees
+        alt_r = math.exp(-(sim.get_property_value(c.delta_altitude)/alt_error_scale)**2)
 
-        # Add selective pressure to model that end up the simulation earlier
-        reward = 0.4*heading_r + 0.4*alt_r + 0.2*angle_speed_r
-        '''
-        if sim.get_property_value(c.simulation_sim_time_sec) < 300:
-            reward = reward / 3.0
-        if sim.get_property_value(c.simulation_sim_time_sec) >= 300 and sim.get_property_value(c.simulation_sim_time_sec) < 1000:
-            reward = reward / 2.0
-        '''
+        roll_error_scale = 0.09 # radians ~= 5 degrees
+        roll_r = math.exp(-(sim.get_property_value(c.attitude_roll_rad)/roll_error_scale)**2)
+
+        accel_error_scale = 1.0  # "g"s
+        accel_r = math.exp(-((sim.get_property_value(c.accelerations_n_pilot_x_norm)/accel_error_scale)**2 +
+                             (sim.get_property_value(c.accelerations_n_pilot_y_norm)/accel_error_scale)**2 +
+                             ((sim.get_property_value(c.accelerations_n_pilot_z_norm) + 1)/accel_error_scale)**2) #  expected value for z component is -1 g
+                           )**(1/3) #  geometric mean
+
+        reward = (heading_r * alt_r * accel_r * roll_r)**(1/4) #  geometric mean
         return reward
-
 
     def is_terminal(self, state, sim):
         # if acceleration are too high stop the simulation
-        acc = 36 #1G
+        acceleration_limit = 1.0 #  "g"s
         if (sim.get_property_value(c.simulation_sim_time_sec)>10):
-            if math.fabs(sim.get_property_value(c.accelerations_a_pilot_x_ft_sec2)) > acc or math.fabs(sim.get_property_value(c.accelerations_a_pilot_y_ft_sec2)) > acc or math.fabs(sim.get_property_value(c.accelerations_a_pilot_z_ft_sec2)) > acc:
+            if (math.fabs(sim.get_property_value(c.accelerations_n_pilot_x_norm)) > acceleration_limit or
+                math.fabs(sim.get_property_value(c.accelerations_n_pilot_y_norm)) > acceleration_limit or
+                math.fabs(sim.get_property_value(c.accelerations_n_pilot_z_norm) + 1) > acceleration_limit): #  z component is expected to be -1 g
                 return True
 
         # Change heading every 150 seconds
