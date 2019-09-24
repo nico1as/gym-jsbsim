@@ -13,15 +13,16 @@ import numpy as np
 
 class HeadingControlTask(Task):
 
-
     state_var = [c.delta_altitude,
-             c.delta_heading,
-             c.velocities_v_down_fps,
-             c.velocities_vc_fps,
-             c.velocities_p_rad_sec,
-             c.velocities_q_rad_sec,
-             c.velocities_r_rad_sec
-             ]
+                 c.delta_heading,
+                 c.attitude_pitch_rad,
+                 c.attitude_roll_rad,
+                 c.velocities_v_down_fps,
+                 c.velocities_vc_fps,
+                 c.velocities_p_rad_sec,
+                 c.velocities_q_rad_sec,
+                 c.velocities_r_rad_sec
+                 ]
 
     action_var = [c.fcs_aileron_cmd_norm,
                   c.fcs_elevator_cmd_norm,
