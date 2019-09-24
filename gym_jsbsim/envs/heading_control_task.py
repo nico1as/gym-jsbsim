@@ -83,13 +83,16 @@ class HeadingControlTask(Task):
         roll_error_scale = 0.09 # radians ~= 5 degrees
         roll_r = math.exp(-(sim.get_property_value(c.attitude_roll_rad)/roll_error_scale)**2)
 
+        speed_error_scale = 16 # fps (~5%)
+        speed_r = math.exp(-((sim.get_property_value(c.velocities_u_fps) - 800)/speed_error_scale)**2)
+
         accel_error_scale = 1.0  # "g"s
         accel_r = math.exp(-((sim.get_property_value(c.accelerations_n_pilot_x_norm)/accel_error_scale)**2 +
                              (sim.get_property_value(c.accelerations_n_pilot_y_norm)/accel_error_scale)**2 +
                              ((sim.get_property_value(c.accelerations_n_pilot_z_norm) + 1)/accel_error_scale)**2) #  expected value for z component is -1 g
                            )**(1/3) #  geometric mean
 
-        reward = (heading_r * alt_r * accel_r * roll_r)**(1/4) #  geometric mean
+        reward = (heading_r * alt_r * accel_r * roll_r * speed_r)**(1/5) #  geometric mean
         return reward
 
     def is_terminal(self, state, sim):
