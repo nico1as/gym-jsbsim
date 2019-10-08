@@ -113,10 +113,8 @@ class HeadingControlTask(Task):
 
             new_alt = sim.get_property_value(c.target_altitude_ft)# + random.uniform(-1000, 1000)
             angle = int(sim.get_property_value(c.steady_flight)/150) * 10
-            if int(sim.get_property_value(c.steady_flight)/150) % 2 == 1:
-                new_heading = sim.get_property_value(c.target_heading_deg) + angle
-            else:
-                new_heading = sim.get_property_value(c.target_heading_deg) - angle
+            sign = random.choice([+1., -1.])
+            new_heading = sim.get_property_value(c.target_heading_deg) + sign * angle
                 
             new_heading = (new_heading +360) % 360
 
