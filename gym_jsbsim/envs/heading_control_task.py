@@ -123,6 +123,6 @@ class HeadingControlTask(Task):
             sim.set_property_value(c.target_heading_deg, new_heading)
 
             sim.set_property_value(c.steady_flight,sim.get_property_value(c.steady_flight)+150)
-        # End up the simulation after 1200 secondes or if the aircraft is under or above 500 feet of its target altitude or velocity under 400f/s
-        return sim.get_property_value(c.simulation_sim_time_sec)>=1500 or math.fabs(sim.get_property_value(c.delta_altitude)) >= 300 or bool(sim.get_property_value(c.detect_extreme_state))
+        # End up the simulation if the aircraft is under or above 300 feet of its target altitude or it is on an extreme state
+        return math.fabs(sim.get_property_value(c.delta_altitude)) >= 300 or bool(sim.get_property_value(c.detect_extreme_state))
 
