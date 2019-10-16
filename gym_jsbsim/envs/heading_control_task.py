@@ -111,7 +111,10 @@ class HeadingControlTask(Task):
             if math.fabs(sim.get_property_value(c.delta_heading)) > 10:
                 return True
 
-            new_alt = sim.get_property_value(c.target_altitude_ft) + random.uniform(-1000, 1000)
+            alt_delta = int(sim.get_property_value(c.steady_flight)/150) * 100
+            sign = random.choice([+1., -1.])
+            new_alt = sim.get_property_value(c.target_altitude_ft) + sign * alt_delta
+
             angle = int(sim.get_property_value(c.steady_flight)/150) * 10
             sign = random.choice([+1., -1.])
             new_heading = sim.get_property_value(c.target_heading_deg) + sign * angle
