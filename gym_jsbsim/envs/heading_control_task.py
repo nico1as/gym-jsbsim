@@ -122,5 +122,7 @@ class HeadingControlTask(Task):
             sim.set_property_value(c.target_heading_deg, new_heading)
 
             sim.set_property_value(c.steady_flight,sim.get_property_value(c.steady_flight)+150)
-        # End up the simulation if the aircraft is on an extreme state TODO: Add extreme acceleration to extreme state
-        return bool(sim.get_property_value(c.detect_extreme_state))
+        # End up the simulation if the aircraft is on an extreme state
+        # TODO: Add extreme acceleration to extreme state
+        # TODO: Why is an altitude check needed?
+        return (sim.get_property_value(c.position_h_sl_ft) < 3000) or bool(sim.get_property_value(c.detect_extreme_state))
