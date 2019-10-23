@@ -63,7 +63,10 @@ class MyCatalog(Property, Enum):
         extreme_velocity = sim.get_property_value(JsbsimCatalog.velocities_eci_velocity_mag_fps) >= 1e10
         extreme_rotation = norm(sim.get_property_values([JsbsimCatalog.velocities_p_rad_sec,JsbsimCatalog.velocities_q_rad_sec,JsbsimCatalog.velocities_r_rad_sec])) >= 1000
         extreme_altitude = sim.get_property_value(JsbsimCatalog.position_h_sl_ft) >= 1e10
-        sim.set_property_value(MyCatalog.detect_extreme_state, extreme_altitude or extreme_rotation or extreme_velocity)
+        extreme_acceleration = max([abs(sim.get_property_value(c.accelerations_n_pilot_x_norm)),
+                                    abs(sim.get_property_value(c.accelerations_n_pilot_y_norm)),
+                                    abs(sim.get_property_value(c.accelerations_n_pilot_z_norm))]) > 1e1 # acceleration larger than 10G
+        sim.set_property_value(MyCatalog.detect_extreme_state, extreme_altitude or extreme_rotation or extreme_velocity or extreme_acceleration)
 
 
     def update_da(sim):
