@@ -102,8 +102,10 @@ class HeadingControlTask(Task):
     def is_terminal(self, state, sim):
         # Change heading every 150 seconds
         if sim.get_property_value(c.simulation_sim_time_sec) >= sim.get_property_value(c.steady_flight):
-            # if the traget heading was not reach before, we stop the simulation (to avoid reward aircraft the don't care of the heading)
+            # if the traget heading was not reach before, we stop the simulation
             if math.fabs(sim.get_property_value(c.delta_heading)) > 10:
+                return True
+            if math.fabs(sim.get_property_value(c.delta_altitude)) >= 100:
                 return True
 
             alt_delta = int(sim.get_property_value(c.steady_flight)/150) * 100
@@ -113,7 +115,6 @@ class HeadingControlTask(Task):
             angle = int(sim.get_property_value(c.steady_flight)/150) * 10
             sign = random.choice([+1., -1.])
             new_heading = sim.get_property_value(c.target_heading_deg) + sign * angle
-                
             new_heading = (new_heading +360) % 360
 
             print(f'Time to change: {sim.get_property_value(c.simulation_sim_time_sec)} (Altitude: {sim.get_property_value(c.target_altitude_ft)} -> {new_alt}, Heading: {sim.get_property_value(c.target_heading_deg)} -> {new_heading})')
@@ -121,6 +122,5 @@ class HeadingControlTask(Task):
             sim.set_property_value(c.target_heading_deg, new_heading)
 
             sim.set_property_value(c.steady_flight,sim.get_property_value(c.steady_flight)+150)
-        # End up the simulation if the aircraft is under or above 300 feet of its target altitude or it is on an extreme state
-        return math.fabs(sim.get_property_value(c.delta_altitude)) >= 300 or bool(sim.get_property_value(c.detect_extreme_state))
-
+        # End up the simulation if the aircraft is on an extreme state TODO: Add extreme acceleration to extreme state
+        return bool(sim.get_property_value(c.detect_extreme_state))
