@@ -75,13 +75,13 @@ class HeadingControlTask(Task):
         '''
         # reward signal is built as a geometric mean of scaled gaussian rewards for each relevant variable
 
-        heading_error_scale = 5. # degrees
+        heading_error_scale = 10. # degrees
         heading_r = math.exp(-(sim.get_property_value(c.delta_heading)/heading_error_scale)**2)
 
         alt_error_scale = 100. # degrees
         alt_r = math.exp(-(sim.get_property_value(c.delta_altitude)/alt_error_scale)**2)
 
-        roll_error_scale = 0.09 # radians ~= 5 degrees
+        roll_error_scale = 0.35 # radians ~= 20 degrees
         roll_r = math.exp(-(sim.get_property_value(c.attitude_roll_rad)/roll_error_scale)**2)
 
         speed_error_scale = 16 # fps (~5%)
@@ -90,7 +90,7 @@ class HeadingControlTask(Task):
         # accel scale in "g"s
         accel_error_scale_x = 0.1
         accel_error_scale_y = 0.1
-        accel_error_scale_z = 1.0
+        accel_error_scale_z = 0.5
         try:
             accel_r = math.exp(-((sim.get_property_value(c.accelerations_n_pilot_x_norm)/accel_error_scale_x)**2 +
                                 (sim.get_property_value(c.accelerations_n_pilot_y_norm)/accel_error_scale_y)**2 +
@@ -99,10 +99,20 @@ class HeadingControlTask(Task):
         except OverflowError:
             accel_r = 0
 
-        reward = (heading_r * alt_r * accel_r * roll_r * speed_r)**(1/5) #  geometric mean
+        reward = (heading_r + alt_r + accel_r + roll_r + speed_r) / 5
         return reward
 
     def is_terminal(self, state, sim):
+        # if acceleration are too high stop the simulation
+        acceleration_limit_x = 0.2 #  "g"s
+        acceleration_limit_y = 0.2 #  "g"s
+        acceleration_limit_z = 1.0 #  "g"s
+        if (sim.get_property_value(c.simulation_sim_time_sec) > 10):
+            if (math.fabs(sim.get_property_value(c.accelerations_n_pilot_x_norm)) > acceleration_limit_x or
+                math.fabs(sim.get_property_value(c.accelerations_n_pilot_y_norm)) > acceleration_limit_y or
+                math.fabs(sim.get_property_value(c.accelerations_n_pilot_z_norm) + 1) > acceleration_limit_z): #  z component is expected to be -1 g
+                return True
+
         # Change heading every 150 seconds
         if sim.get_property_value(c.simulation_sim_time_sec) >= sim.get_property_value(c.steady_flight):
             # if the traget heading was not reach before, we stop the simulation
@@ -111,7 +121,7 @@ class HeadingControlTask(Task):
             if math.fabs(sim.get_property_value(c.delta_altitude)) >= 100:
                 return True
 
-            alt_delta = int(sim.get_property_value(c.steady_flight)/150) * 100
+            alt_delta = (int(sim.get_property_value(c.steady_flight)/150) * 100) % 5000
             sign = random.choice([+1., -1.])
             new_alt = sim.get_property_value(c.target_altitude_ft) + sign * alt_delta
 
@@ -125,6 +135,7 @@ class HeadingControlTask(Task):
             sim.set_property_value(c.target_heading_deg, new_heading)
 
             sim.set_property_value(c.steady_flight,sim.get_property_value(c.steady_flight)+150)
+
         # End up the simulation if the aircraft is on an extreme state
-        # TODO: Why is an altitude check needed?
+        # TODO: Is an altitude check needed?
         return (sim.get_property_value(c.position_h_sl_ft) < 3000) or bool(sim.get_property_value(c.detect_extreme_state))
