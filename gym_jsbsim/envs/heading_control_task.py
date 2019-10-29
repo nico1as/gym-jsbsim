@@ -75,10 +75,10 @@ class HeadingControlTask(Task):
         '''
         # reward signal is built as a geometric mean of scaled gaussian rewards for each relevant variable
 
-        heading_error_scale = 10. # degrees
+        heading_error_scale = 5. # degrees
         heading_r = math.exp(-(sim.get_property_value(c.delta_heading)/heading_error_scale)**2)
 
-        alt_error_scale = 100. # degrees
+        alt_error_scale = 50. # feet
         alt_r = math.exp(-(sim.get_property_value(c.delta_altitude)/alt_error_scale)**2)
 
         roll_error_scale = 0.35 # radians ~= 20 degrees
