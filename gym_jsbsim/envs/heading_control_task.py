@@ -104,9 +104,9 @@ class HeadingControlTask(Task):
 
     def is_terminal(self, state, sim):
         # if acceleration are too high stop the simulation
-        acceleration_limit_x = 0.2 #  "g"s
-        acceleration_limit_y = 0.2 #  "g"s
-        acceleration_limit_z = 1.0 #  "g"s
+        acceleration_limit_x = 2.0 #  "g"s
+        acceleration_limit_y = 2.0 #  "g"s
+        acceleration_limit_z = 2.0 #  "g"s
         if (sim.get_property_value(c.simulation_sim_time_sec) > 10):
             if (math.fabs(sim.get_property_value(c.accelerations_n_pilot_x_norm)) > acceleration_limit_x or
                 math.fabs(sim.get_property_value(c.accelerations_n_pilot_y_norm)) > acceleration_limit_y or
