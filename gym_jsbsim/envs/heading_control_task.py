@@ -103,16 +103,6 @@ class HeadingControlTask(Task):
         return reward
 
     def is_terminal(self, state, sim):
-        # if acceleration are too high stop the simulation
-        acceleration_limit_x = 2.0 #  "g"s
-        acceleration_limit_y = 2.0 #  "g"s
-        acceleration_limit_z = 2.0 #  "g"s
-        if (sim.get_property_value(c.simulation_sim_time_sec) > 10):
-            if (math.fabs(sim.get_property_value(c.accelerations_n_pilot_x_norm)) > acceleration_limit_x or
-                math.fabs(sim.get_property_value(c.accelerations_n_pilot_y_norm)) > acceleration_limit_y or
-                math.fabs(sim.get_property_value(c.accelerations_n_pilot_z_norm) + 1) > acceleration_limit_z): #  z component is expected to be -1 g
-                return True
-
         # Change heading every 150 seconds
         if sim.get_property_value(c.simulation_sim_time_sec) >= sim.get_property_value(c.steady_flight):
             # if the traget heading was not reach before, we stop the simulation
@@ -135,6 +125,16 @@ class HeadingControlTask(Task):
             sim.set_property_value(c.target_heading_deg, new_heading)
 
             sim.set_property_value(c.steady_flight,sim.get_property_value(c.steady_flight)+150)
+
+        # if acceleration are too high stop the simulation
+        acceleration_limit_x = 2.0 #  "g"s
+        acceleration_limit_y = 2.0 #  "g"s
+        acceleration_limit_z = 2.0 #  "g"s
+        if (sim.get_property_value(c.simulation_sim_time_sec) > 10):
+            if (math.fabs(sim.get_property_value(c.accelerations_n_pilot_x_norm)) > acceleration_limit_x or
+                math.fabs(sim.get_property_value(c.accelerations_n_pilot_y_norm)) > acceleration_limit_y or
+                math.fabs(sim.get_property_value(c.accelerations_n_pilot_z_norm) + 1) > acceleration_limit_z): #  z component is expected to be -1 g
+                return True
 
         # End up the simulation if the aircraft is on an extreme state
         # TODO: Is an altitude check needed?
