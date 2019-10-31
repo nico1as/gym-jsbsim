@@ -119,4 +119,4 @@ class HeadingControlTask(Task):
 
         # End up the simulation if the aircraft is on an extreme state
         # TODO: Is an altitude check needed?
-       return (sim.get_property_value(c.position_h_sl_ft) < 3000) or bool(sim.get_property_value(c.detect_extreme_state))
+        return (sim.get_property_value(c.position_h_sl_ft) < 3000) or bool(sim.get_property_value(c.detect_extreme_state))
