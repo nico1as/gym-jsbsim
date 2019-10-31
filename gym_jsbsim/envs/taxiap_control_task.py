@@ -22,6 +22,9 @@ class TaxiapControlTask(Task):
     INITIAL_ALTITUDE_FT = 11.52
     INITIAL_VELOCITY_U = 7.0 * k2f #33.76 #20 knots/sec
 
+    avg_dist = 0
+    nb_step = 0
+
     init_conditions = { # 'ic/h-sl-ft', 'initial altitude MSL [ft]'
                         c.ic_h_sl_ft: INITIAL_ALTITUDE_FT,
                         #'ic/terrain-elevation-ft', 'initial terrain alt [ft]'
@@ -67,32 +70,15 @@ class TaxiapControlTask(Task):
 
     def get_reward(self,state, sim):
         '''
-        Reward with delta and altitude heading directly in the input vector state.
+        Reward according to distance to the centerline.
         '''
-        # inverse of the normalised value of q, r, p acceleartion
-        #angle_speed_r = 1.0/math.sqrt((math.fabs(last_state.accelerations_pdot_rad_sec2) + math.fabs(last_state.accelerations_qdot_rad_sec2) + math.fabs(last_state.accelerations_rdot_rad_sec2) + math.fabs(last_state.velocities_v_down_fps)) / 4.0 + 1)
-
-        # Add selective pressure to model that end up the simulation earlier
-        #if sim.get_property_value(c.velocities_vc_fps) <= 20 and sim.get_property_value(c.velocities_vc_fps) >= 7:
-        #    vel_r = 1.
-        #else:
-        #    vel_r = 0.
-
-        #dist_r = math.exp(-sim.get_property_value(c.shortest_dist)) #1.0/math.sqrt((sim.get_property_value(c.shortest_dist)+1))
-        #print(sim.get_property_value(c.simulation_sim_time_sec), "vitesse", sim.get_property_value(c.velocities_vc_fps), "distance", sim.get_property_value(c.shortest_dist), "reward", dist_r, "steer", sim.get_property_value(c.fcs_steer_cmd_norm), "a1, a2", sim.get_property_value(c.a1), sim.get_property_value(c.a2))
-        # inverse of the proportional absolute value of the minimal angle between the initial and current heading ...
         shortest_dist_r = math.exp(-math.fabs(sim.get_property_value(c.shortest_dist)))
-        #delta_heading_r = math.exp(-math.fabs(sim.get_property_value(c.delta_heading)))
+        
+        self.avg_dist += math.fabs(sim.get_property_value(c.shortest_dist))
+        self.nb_step += 1
 
-        #print(sim.get_property_value(c.delta_heading))
-        '''
-        sd = sim.get_property_value(c.shortest_dist)
-        if (sd < 5 and sd > 0):
-            return 1
-        else:
-            return 0
-        '''
-        #reward = delta_heading_r
+        print(sim.get_property_value(c.shortest_dist), sim.get_property_value(c.velocities_vc_fps), sim.get_property_value(c.fcs_steer_cmd_norm))
+        
         
         return shortest_dist_r
 
@@ -135,6 +121,11 @@ class TaxiapControlTask(Task):
         else:
             max_centerline_distance = 1
         '''
-        return sim.get_property_value(c.simulation_sim_time_sec)>=150 or math.fabs(sim.get_property_value(c.shortest_dist)) >= 10
+
+        terminal = sim.get_property_value(c.simulation_sim_time_sec)>=150 or math.fabs(sim.get_property_value(c.shortest_dist)) >= 10
+        if terminal:
+            print('Simulation ended at t='+str(sim.get_property_value(c.simulation_sim_time_sec)))
+            print('Avg dist to central line: '+str(self.avg_dist / self.nb_step))
+        return terminal
 
 

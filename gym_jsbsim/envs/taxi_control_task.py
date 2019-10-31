@@ -19,11 +19,17 @@ class TaxiControlTask(Task):
                   c.fcs_throttle_cmd_norm
     ]
 
+    k2f = 1.68781
     INIT_AC_LON = 1.37211666700005708
     INIT_AC_LAT = 43.6189638890000424
     INIT_AC_HEADING = 323
     INITIAL_ALTITUDE_FT = 11.52
-    INITIAL_VELOCITY_U = 33.76/3.0 #20 knots/sec
+    INITIAL_VELOCITY_U = 7.0 * k2f #33.76 #20 knots/sec
+
+    avg_dist = 0
+    nb_step = 0
+    perf_time = 0
+    perf_time_avg = 0
 
     init_conditions = { # 'ic/h-sl-ft', 'initial altitude MSL [ft]'
                         c.ic_h_sl_ft: INITIAL_ALTITUDE_FT,
@@ -61,8 +67,10 @@ class TaxiControlTask(Task):
                         c.propulsion_set_running: -1,
                         # gear up
                         c.gear_gear_pos_norm : 1,
-                        c.gear_gear_cmd_norm: 1
+                        c.gear_gear_cmd_norm: 1,
                         #c.nb_step:0
+                        # id_path
+                        c.id_path : 0
     }
 
 
@@ -81,7 +89,17 @@ class TaxiControlTask(Task):
 
         dist_r = math.exp(-sim.get_property_value(c.shortest_dist)) #1.0/math.sqrt((sim.get_property_value(c.shortest_dist)+1))
 
-        reward = dist_r
+        
+
+        self.avg_dist += math.fabs(sim.get_property_value(c.shortest_dist))
+        self.nb_step += 1
+        # time to finish the centerline normalised
+        self.perf_time += math.fabs(sim.get_property_value(c.velocities_vc_fps)) 
+        self.perf_tim_avg = (self.perf_time / self.nb_step) / (21.0*self.k2f*self.nb_step)
+        
+        reward = 0.6*dist_r + 0.4*self.perf_tim_avg
+
+        #print(sim.get_property_value(c.shortest_dist), sim.get_property_value(c.velocities_vc_fps), sim.get_property_value(c.fcs_steer_cmd_norm))
         
         return reward
 
@@ -91,7 +109,7 @@ class TaxiControlTask(Task):
         # End up the simulation after 1200 secondes or if the aircraft is under or above 500 feet of its target altitude or velocity under 400f/s
         #print("state", state)
         #print("sim.get_property_value(v_air)", sim.get_property_value(v_air), sim.get_property_value(u_fps), sim.get_property_value(v_fps))
-        
+        '''
         if sim.get_property_value(c.simulation_sim_time_sec) < 60:
             max_centerline_distance = 50
         else:
@@ -102,7 +120,13 @@ class TaxiControlTask(Task):
                     max_centerline_distance = 10
                 else:
                     max_centerline_distance = 1
+        '''
+        terminal = sim.get_property_value(c.simulation_sim_time_sec)>=450 or math.fabs(sim.get_property_value(c.shortest_dist)) >= 10 or math.fabs(sim.get_property_value(c.velocities_vc_fps)) > 21*self.k2f or math.fabs(sim.get_property_value(c.velocities_vc_fps)) < 7*self.k2f          
+        if terminal:
+            print('Simulation ended at t='+str(sim.get_property_value(c.simulation_sim_time_sec)))
+            print('Avg dist to central line: '+str(self.avg_dist / self.nb_step))
+            print('Avg vel: '+str(self.perf_tim_avg * (21.0*self.nb_step)))
 
-        return sim.get_property_value(c.simulation_sim_time_sec)>=300 or math.fabs(sim.get_property_value(c.shortest_dist)) >= max_centerline_distance or math.fabs(sim.get_property_value(c.velocities_vc_fps)) > 21 or math.fabs(sim.get_property_value(c.velocities_vc_fps)) < 7
+        return terminal
 
 

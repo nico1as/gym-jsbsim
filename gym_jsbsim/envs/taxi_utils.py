@@ -123,8 +123,12 @@ class taxi_path(object):
         next_point = False
         output = []
         id_path=min(id_path, len(self.centerlinepoints)-1)
-        if Point(aircraft_loc).distance(Point(self.centerlinepoints[id_path]))*100000 < 1 or abs(aircraft_heading - get_bearing(aircraft_loc, self.centerlinepoints[id_path])) > 60:
-            #print(id_path, Point(aircraft_loc).distance(Point(self.centerlinepoints[id_path]))*100000, aircraft_loc, self.centerlinepoints[id_path], (get_bearing(aircraft_loc, self.centerlinepoints[id_path])+360)%360, aircraft_heading, abs(aircraft_heading - (get_bearing(aircraft_loc, self.centerlinepoints[id_path])+360)%360))
+        
+        angle_basic = aircraft_heading - get_bearing(aircraft_loc, self.centerlinepoints[id_path])
+        angle_basic360 = (abs(angle_basic)+360)%360
+        angle_ac_nextpoint = min(angle_basic360, 360-angle_basic360)
+        if Point(aircraft_loc).distance(Point(self.centerlinepoints[id_path]))*100000 < 1 or angle_ac_nextpoint > 60:
+            #print(id_path, Point(aircraft_loc).distance(Point(self.centerlinepoints[id_path]))*100000, aircraft_loc, self.centerlinepoints[id_path], "next_p", get_bearing(aircraft_loc, self.centerlinepoints[id_path]), "air_head", aircraft_heading, angle_basic, angle_ac_nextpoint)
             # I move to the next centerline point
             next_point = True
             # I keep my next 4 points
