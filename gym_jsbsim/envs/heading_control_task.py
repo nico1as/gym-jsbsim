@@ -5,10 +5,8 @@ import random
 import numpy as np
 
 """
-
-    A task in which the agent must perform steady, level flight maintaining its
-
-    initial heading.
+    A task in which the agent must perform steady, level flight maintaining its initial heading.
+    Every 150 sec a new target heading is set.
 """
 
 class HeadingControlTask(Task):
@@ -30,40 +28,22 @@ class HeadingControlTask(Task):
                   c.fcs_throttle_cmd_norm,
                   ]
 
-    init_conditions = { # 'ic/h-sl-ft', 'initial altitude MSL [ft]'
-                        c.ic_h_sl_ft: 10000,
-                        #'ic/terrain-elevation-ft', 'initial terrain alt [ft]'
+    init_conditions = { c.ic_h_sl_ft: 10000,
                         c.ic_terrain_elevation_ft: 0,
-                        #'ic/long-gc-deg', 'initial geocentric longitude [deg]'
                         c.ic_long_gc_deg: 1.442031,
-                        #'ic/lat-geod-deg', 'initial geodesic latitude [deg]'
                         c.ic_lat_geod_deg: 43.607181,
-                        #'ic/u-fps', 'body frame x-axis velocity; positive forward [ft/s]'
                         c.ic_u_fps: 800,
-                        #'ic/v-fps', 'body frame y-axis velocity; positive right [ft/s]'
                         c.ic_v_fps: 0,
-                        #'ic/w-fps', 'body frame z-axis velocity; positive down [ft/s]'
                         c.ic_w_fps: 0,
-                        #'ic/p-rad_sec', 'roll rate [rad/s]'
                         c.ic_p_rad_sec: 0,
-                        #'ic/q-rad_sec', 'pitch rate [rad/s]'
                         c.ic_q_rad_sec: 0,
-                        #'ic/r-rad_sec', 'yaw rate [rad/s]'
                         c.ic_r_rad_sec: 0,
-                        #'ic/roc-fpm', 'initial rate of climb [ft/min]'
                         c.ic_roc_fpm: 0,
-                        #'ic/psi-true-deg', 'initial (true) heading [deg]'
                         c.ic_psi_true_deg: 100,
-                        # target heading deg
                         c.target_heading_deg: 100,
-                        # target heading deg
                         c.target_altitude_ft: 10000,
-                        # controls command
-                        #'fcs/throttle-cmd-norm', 'throttle commanded position, normalised', 0., 1.
                         c.fcs_throttle_cmd_norm: 0.8,
-                        #'fcs/mixture-cmd-norm', 'engine mixture setting, normalised', 0., 1.
                         c.fcs_mixture_cmd_norm: 1,
-                        # gear up
                         c.gear_gear_pos_norm : 0,
                         c.gear_gear_cmd_norm: 0,
                         c.steady_flight:150
@@ -73,7 +53,7 @@ class HeadingControlTask(Task):
         '''
         Compute reward for HeadingControlTask
         '''
-        # reward signal is built as a geometric mean of scaled gaussian rewards for each relevant variable
+        # Reward is built as a geometric mean of scaled gaussian rewards for each relevant variable
 
         heading_error_scale = 5. # degrees
         heading_r = math.exp(-(sim.get_property_value(c.delta_heading)/heading_error_scale)**2)
@@ -105,7 +85,7 @@ class HeadingControlTask(Task):
     def is_terminal(self, state, sim):
         # Change heading every 150 seconds
         if sim.get_property_value(c.simulation_sim_time_sec) >= sim.get_property_value(c.steady_flight):
-            # if the target heading was not reached before, we stop the simulation
+            # If the target heading and altitude were not reached, we stop the simulation
             if math.fabs(sim.get_property_value(c.delta_heading)) > 10:
                 return True
             if math.fabs(sim.get_property_value(c.delta_altitude)) >= 100:
@@ -120,7 +100,8 @@ class HeadingControlTask(Task):
             new_heading = sim.get_property_value(c.target_heading_deg) + sign * angle
             new_heading = (new_heading +360) % 360
 
-            print(f'Time to change: {sim.get_property_value(c.simulation_sim_time_sec)} (Altitude: {sim.get_property_value(c.target_altitude_ft)} -> {new_alt}, Heading: {sim.get_property_value(c.target_heading_deg)} -> {new_heading})')
+            #print(f'Time to change: {sim.get_property_value(c.simulation_sim_time_sec)} (Altitude: {sim.get_property_value(c.target_altitude_ft)} -> {new_alt}, Heading: {sim.get_property_value(c.target_heading_deg)} -> {new_heading})')
+
             sim.set_property_value(c.target_altitude_ft, new_alt)
             sim.set_property_value(c.target_heading_deg, new_heading)
 
@@ -138,4 +119,4 @@ class HeadingControlTask(Task):
 
         # End up the simulation if the aircraft is on an extreme state
         # TODO: Is an altitude check needed?
-        return (sim.get_property_value(c.position_h_sl_ft) < 3000) or bool(sim.get_property_value(c.detect_extreme_state))
+       return (sim.get_property_value(c.position_h_sl_ft) < 3000) or bool(sim.get_property_value(c.detect_extreme_state))

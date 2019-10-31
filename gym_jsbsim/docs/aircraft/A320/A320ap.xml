@@ -52,31 +52,18 @@
    </switch>
 
    <switch name="ap/throttle-cmd-norm">
-       <default value="0.0"/>
+       <default value="fcs/throttle-cmd-norm"/>
        <test value="ap/vg-throttle-error-pid">
          ap/vg-hold == 1
          gear/wow == 1
        </test>
+       <clipto>
+         <min> 0 </min>
+         <max> 1 </max>
+       </clipto>
+       <output> fcs/throttle-cmd-norm </output>
+       <output> fcs/throttle-cmd-norm[1] </output>
    </switch>
-
-   <summer>
-      <input> ap/throttle-cmd-norm </input>
-      <input> fcs/throttle-cmd-norm </input>
-      <clipto>
-         <min> 0 </min>
-         <max> 1 </max>
-      </clipto>
-      <output> fcs/throttle-pos-norm </output>
-   </summer>
-   <summer>
-      <input> ap/throttle-cmd-norm </input>
-      <input> fcs/throttle-cmd-norm[1] </input>
-      <clipto>
-         <min> 0 </min>
-         <max> 1 </max>
-      </clipto>
-      <output> fcs/throttle-pos-norm[1] </output>
-   </summer>
 
  </channel>
 </autopilot>

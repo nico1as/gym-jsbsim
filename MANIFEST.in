@@ -1,0 +1,8 @@
+graft gym_jsbsim/jsbsim/src
+prune gym_jsbsim/jsbsim/src/utilities
+recursive-exclude gym_jsbsim/jsbsim/src *.txt
+recursive-include gym_jsbsim/jsbsim/python *.pxd *.pyx *.h *.cpp
+include gym_jsbsim/jsbsim/aircraft/*/*.xml
+include gym_jsbsim/jsbsim/engine/*.xml
+include gym_jsbsim/jsbsim/systems/*.xml
+graft gym_jsbsim/docs

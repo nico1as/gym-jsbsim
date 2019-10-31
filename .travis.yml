@@ -1,0 +1,51 @@
+language: python
+matrix:
+  include:
+  - name: Python 3.6 on Linux
+    python: 3.6
+  - name: Python 3.7 on Linux
+    python: 3.7
+  - name: Python 3.6 on macOS
+    os: osx
+    language: shell
+  - name: Python 3.7 on macOS
+    os: osx
+    osx_image: xcode11
+    language: shell
+  - name: Python 3.6 on Windows
+    os: windows
+    language: shell
+    before_install:
+    - choco install python --version=3.6.5
+    - python -m pip install --upgrade pip
+    - pip install https://download.lfd.uci.edu/pythonlibs/g5apjq5m/Shapely-1.6.4.post2-cp36-cp36m-win_amd64.whl
+    env: PATH=/c/Python36:/c/Python36/Scripts:$PATH
+  - name: Python 3.7 on Windows
+    os: windows
+    language: shell
+    before_install:
+    - choco install python --version=3.7.4
+    - python -m pip install --upgrade pip
+    - pip install https://download.lfd.uci.edu/pythonlibs/g5apjq5m/Shapely-1.6.4.post2-cp37-cp37m-win_amd64.whl
+    env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
+install:
+- pip3 install .
+script:
+- python3 -m unittest || python -m unittest
+before_deploy:
+- pip3 install wheel twine
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then chmod +x build_tools/build_wheels.sh && docker run
+  --rm -e TRAVIS_PYTHON_VERSION=$TRAVIS_PYTHON_VERSION -v $PWD:/io quay.io/pypa/manylinux2010_x86_64 /io/build_tools/build_wheels.sh && ls dist/;
+  fi
+deploy:
+  provider: script
+  script: sh build_tools/deploy.sh
+  skip_existing: true
+  skip_cleanup: true
+  on:
+    branch: new
+    tags: true
+env:
+  global:
+  - secure: V10MHKTKlLBK8sIsvZfr+lWhkLR7zd0xn4kZ4C0HB5T3COA5TOYbJWrNE3AxW5B59Hp8ZMYPYsM9tpGyBG5BCORH8W1a2vMSa4Zud0+D4IExiqiFrNScWC70Ymu6fRMC15OQlJ2oyb1luCAsOCaoogLBYkj54mOlRj4k8Sz87lXqq2HZ0+8ztSXGVIEdBcQTi8r+24gOYmsJZ4m0C4qkEkG0fhFGDrJD1eMxGK4+23yyfmDxqjkZj74LWwYU1ltacesUbA6H04GOxpQ0eepF5sdOo55s6inCoeUMrp/Hr/+/P0HTn6pY51UaluzY13aDvSA7lPS3YZbwJho7h4izLN/8qVx12LlK1Au2h7oCXCPbNDrEJwMiUhnwfStL9UqOm1DwpMU384ak+FxtIMqJ3LqwItzYNQEauqfT6PmDjwe95abqXK2Gj5NDjGJWJRBffAsx/9eFfyxCU0qH5w1er5WSp0xXwDtFLmXox04c09tZ0VH4ce4JmVdG9O/EhtoPoPdnI5clZWglux7ZOsg/9OnznHdk6XfsSsNhqCxrveNMprZw3XAZpu0i3jH+lm6d3wcmNOdx8ceLlYznlcUIxDjx8DN9SPSzzIs4Y3Zq7Vaf561DwISqhyA9V+r+exqd5gN1LCOlxRbpliobuU4X05qMppJEFyBZptj4PybhuZI=
+  - secure: KQQC1uvOHYkba+5VMeinTXSJYKCpiz48dqI5f4zSPM9glJnroU9zbBsiaEHcnV9mTQzgdoACB20ocO0100/O2WhwGhRoq3d6uB2sDfKKqK4VWkGg2mw9ta0GiBRZ1lqaUjQW588q/wHpLrrqfqd+dWhe64xNoSmDJdbQ74bNX74zBH5puEA1l58vUgGqW6CpbWuQB+CRIGgahd/D+g4L08f3R073oH2x1KHHTYpQhCA3cN4vbSeORvVHK76D/n61bT3xBwtb+b96H7jVK7zJsx8iYJDczMwgmQvEtjBfv+kpvzlP84eV9CwqB/9sRCM4bu/jPBAdj8aYiRa5xvvQMbDAmiatgBt8VXk6nL7Kf3QYgX5dY7ZESx4UTTfPx/Z6Ob8NhCfr7esUv4roLZvlkbx1/l2UKoDpDsvY27bE5FCV5c4lbqghwvO3tBK/UTJupA5VXCQOgy94WZgUr2BrQ/pelKRiMthPTD8pDhNkwbyT1s99IqImgB8x6Gd5gSogcF5pXMVXdRovefMz6fYlwH1MXp0V6Pqw2zhhA7kugoBu+yahw8bPVfe6goREiOkEElf3RKaSrsAaq6xeb/18bwV/fsROQyzNpdO0BkwEl87iPZQsM/8qJAiyyQA2TjRqjKN3T2G5o1XbAfoIY3ntfyJlMES9tefLk7crx2cwY4g=

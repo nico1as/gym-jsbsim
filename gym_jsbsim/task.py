@@ -84,6 +84,9 @@ class Task:
                 space_tuple += (Discrete(prop.max - prop.min + 1),)
         return gym.spaces.Tuple(space_tuple)
 
+    def render(self, sim, mode='human', **kwargs):
+        pass
+
     def define_aircraft(self, aircraft_name='A320'):
         self.aircraft_name = aircraft_name
 

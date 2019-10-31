@@ -5,6 +5,12 @@ from gym_jsbsim.catalogs.property import Property
 
 
 class JsbsimCatalog(Property, Enum):
+    '''
+
+    A class to store and customize jsbsim properties
+
+    '''
+
     # position and attitude
 
     position_h_sl_ft = Property('position/h-sl-ft', 'altitude above mean sea level [ft]', -1400, 85000)
@@ -94,7 +100,8 @@ class JsbsimCatalog(Property, Enum):
         :param prop: property to update
         """
         value = sim.get_property_value(prop)
-        for i in range(1, sim.jsbsim_exec.propulsion_get_num_engines()):
+        n = sim.jsbsim_exec.get_propulsion().get_num_engines()
+        for i in range(1, n):
             sim.jsbsim_exec.set_property_value(prop.name_jsbsim + "[" + str(i) + "]", value)
 
     def update_equal_throttle_pos(sim):
@@ -229,4 +236,4 @@ class JsbsimCatalog(Property, Enum):
     simulation_do_simple_trim = Property('simulation/do_simple_trim', '', access='W')
 
     # Auto Pilot
-    ap_vg_hold = Property('ap/vg-hold', 'Auto Pilot ON OFF', access='W')
+    ap_vg_hold = Property('ap/vg-hold', 'Auto Pilot ON OFF')

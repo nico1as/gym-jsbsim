@@ -1,25 +1,23 @@
-""" Defines custom properties not implemented in JSBSim """
-
-
 from enum import Enum
 from gym.spaces import Box, Discrete
 from gym_jsbsim.catalogs.property import Property
 from gym_jsbsim.catalogs.jsbsim_catalog import JsbsimCatalog
-from gym_jsbsim.envs.taxi_utils import *
+from gym_jsbsim.envs.taxi_utils2 import *
 from gym_jsbsim.catalogs import utils
-import time
-import os.path
 from numpy.linalg import norm
 
-my_path = os.path.abspath(os.path.dirname(__file__))
-coordinates_path = os.path.join(my_path, "../../docs/points.json")
-taxiPath = taxi_path(path_to_points=coordinates_path, number_of_points_to_use=5)
+taxiPath = taxi_path()
 
 #taxi_freq_state = 30
 
 
 
 class MyCatalog(Property, Enum):
+    '''
+
+    A class to define and store new properties not implemented in JSBSim
+
+    '''
 
 
     def update_delta_altitude(sim):
@@ -60,6 +58,10 @@ class MyCatalog(Property, Enum):
 
 
     def update_detect_extreme_state(sim):
+        '''
+        Check whether the simulation is going through excessive values before it returns NaN values.
+        Store the result in detect_extreme_state property.
+        '''
         extreme_velocity = sim.get_property_value(JsbsimCatalog.velocities_eci_velocity_mag_fps) >= 1e10
         extreme_rotation = norm(sim.get_property_values([JsbsimCatalog.velocities_p_rad_sec,JsbsimCatalog.velocities_q_rad_sec,JsbsimCatalog.velocities_r_rad_sec])) >= 1000
         extreme_altitude = sim.get_property_value(JsbsimCatalog.position_h_sl_ft) >= 1e10
@@ -70,39 +72,25 @@ class MyCatalog(Property, Enum):
 
 
     def update_da(sim):
-        #print("sim.get_property_value(nb_step), taxi_freq_state", sim.get_property_value(nb_step), taxi_freq_state)
-        #print(taxi_freq_state)
-        #if (sim.get_property_value(MyCatalog.nb_step)%sim.get_property_value(MyCatalog.taxi_freq_state)==1):
-        #start_time = time.time()
-        df, next_p = taxiPath.update_path2((sim.get_property_value(JsbsimCatalog.position_long_gc_deg), sim.get_property_value(JsbsimCatalog.position_lat_geod_deg)), sim.get_property_value(JsbsimCatalog.attitude_psi_deg), int(sim.get_property_value(MyCatalog.id_path)))
-        #print("--- %s seconds ---",(time.time() - start_time))
-
+        # collect next points
+        df, next_p = taxiPath.update_path2((sim.get_property_value(JsbsimCatalog.position_long_gc_deg), sim.get_property_value(JsbsimCatalog.position_lat_geod_deg)), sim.get_property_value(JsbsimCatalog.attitude_psi_deg), int(sim.get_property_value(MyCatalog.id_path)), 8)
+        
         # change centerline next id_path if needed 
-        #print(next_p)
         if next_p:
             sim.set_property_value(MyCatalog.id_path, sim.get_property_value(MyCatalog.id_path)+1)
 
-        dist = taxiPath.shortest_dist
-        #print("shortest_dist2 in meters", dist)
-        sim.set_property_value(MyCatalog.shortest_dist, dist)
-        #print(sim.get_property_value(MyCatalog.shortest_dist))
+        # set shortest dist
+        sim.set_property_value(MyCatalog.shortest_dist, taxiPath.shortest_dist)
 
+        # set next distance (di) and angles (ai) of the centerlines 
         for i in range(1,len(df)+1):
             sim.set_property_value(MyCatalog["d"+str(i)], df[i-1][1])
             sim.set_property_value(MyCatalog["a"+str(i)], utils.reduce_reflex_angle_deg(df[i-1][2] - sim.get_property_value(JsbsimCatalog.attitude_psi_deg)))
-            #sim.set_property_value(MyCatalog["a"+str(i)], df[i][2])
-
-        #d = sim.get_property_value(MyCatalog.d1)
-        #print(d)
-        #print("a",sim.get_property_value(MyCatalog.a1))
-        #print("d",sim.get_property_value(MyCatalog.d1), sim.get_property_value(MyCatalog.d2), sim.get_property_value(MyCatalog.d3), sim.get_property_value(MyCatalog.d4), sim.get_property_value(MyCatalog.d5), sim.get_property_value(MyCatalog.d6), sim.get_property_value(MyCatalog.d7), sim.get_property_value(MyCatalog.d8))
-        #print("a",sim.get_property_value(MyCatalog.a1), sim.get_property_value(MyCatalog.a2), sim.get_property_value(MyCatalog.a3), sim.get_property_value(MyCatalog.a4), sim.get_property_value(MyCatalog.a5), sim.get_property_value(MyCatalog.a6), sim.get_property_value(MyCatalog.a7), sim.get_property_value(MyCatalog.a8))
-        #print(sim.get_property_value(MyCatalog.shortest_dist))
-        #print("")
-        
-        sec = str(sim.get_property_value(JsbsimCatalog.simulation_sim_time_sec))
-        if (False):
             
+        sec = str(sim.get_property_value(JsbsimCatalog.simulation_sim_time_sec))
+        
+        # Debug prints to display coordinate of the next centerline points
+        if (False):
             try:
                 #s,d1,d2,d3,d4
                 print("[" + 
@@ -113,19 +101,6 @@ class MyCatalog(Property, Enum):
                     "],")
             except:
                 pass
-            '''
-            try:
-                print("[" + 
-                "[" + sec + "," + str(df[0][0][0]) + "," + str(df[0][0][1]) + "," + "5]" + "," + 
-                "[" + sec + "," + str(df[1][0][0]) + "," + str(df[1][0][1]) + "," + "5]" + "," + 
-                "[" + sec + "," + str(df[2][0][0]) + "," + str(df[2][0][1]) + "," + "5]" + 
-                "],")
-            except:
-                pass
-            '''
-
-        #sim.set_property_value(MyCatalog.nb_step, int(sim.get_property_value(MyCatalog.nb_step))+1)
-
 
     # position and attitude
 
@@ -163,7 +138,7 @@ class MyCatalog(Property, Enum):
     id_path = Property('id_path', 'where I am in the centerline path')
 
     #dist_heading_centerline_matrix = Property('dist_heading_centerline_matrix', 'dist_heading_centerline_matrix', '2D matrix with dist,angle of the next point from the aircraft to 1km (max 10 points)', [0, -45, 0, -45, 0, -45, 0, -45, 0, -45, 0, -45, 0, -45, 0, -45], [1000, 45, 1000, 45, 1000, 45, 1000, 45, 1000, 45, 1000, 45, 1000, 45, 1000, 45])
-    d1 = Property('d1', 'd1', 0, 1000, access = 'R')
+    d1 = Property('d1', 'd1', 0, 1000, access = 'R', update = update_da)
     d2 = Property('d2', 'd2', 0, 1000, access = 'R')
     d3 = Property('d3', 'd3', 0, 1000, access = 'R')
     d4 = Property('d4', 'd4', 0, 1000, access = 'R')
@@ -171,7 +146,7 @@ class MyCatalog(Property, Enum):
     d6 = Property('d6', 'd6', 0, 1000, access = 'R')
     d7 = Property('d7', 'd7', 0, 1000, access = 'R')
     d8 = Property('d8', 'd8', 0, 1000, access = 'R')
-    a1 = Property('a1', 'a1', -180, 180, access = 'R', update = update_da)
+    a1 = Property('a1', 'a1', -180, 180, access = 'R')
     a2 = Property('a2', 'a2', -180, 180, access = 'R')
     a3 = Property('a3', 'a3', -180, 180, access = 'R')
     a4 = Property('a4', 'a4', -180, 180, access = 'R')

@@ -3,6 +3,7 @@ import re
 from os import environ
 import jsbsim
 from gym_jsbsim.catalogs.catalog import Catalog
+from gym_jsbsim.catalogs.property import Property, CustomProperty
 
 
 class Simulation:
@@ -46,23 +47,27 @@ class Simulation:
 
         self.agent_interaction_steps = agent_interaction_steps
 
+        self.initialise(init_conditions)
+
+    def initialise(self, init_conditions):
         self.set_initial_conditions(init_conditions)
         success = self.jsbsim_exec.run_ic()
         self.propulsion_init_running(-1)
-
         if not success:
             raise RuntimeError('JSBSim failed to init simulation conditions.')
 
-
-    def propulsion_init_running(self,i):
-        n = self.jsbsim_exec.propulsion_get_num_engines()
-        if i > n :
-            raise ValueError('Tried to initialize a non-existent engine!')
-        elif i < 0 :
+    def propulsion_init_running(self, i):
+        propulsion = self.jsbsim_exec.get_propulsion()
+        n = propulsion.get_num_engines()
+        if i>=0:
+            if i >= n:
+                raise IndexError("Tried to initialize a non-existent engine!")
+            propulsion.get_engine(i).init_running()
+            propulsion.get_steady_state()
+        else:
             for j in range(n):
-                self.jsbsim_exec.set_property_value('propulsion/engine[' + str(j) + ']/set-running', 1)
-        else :
-            self.jsbsim_exec.set_property_value('propulsion/engine[' + str(i) + ']/set-running', 1)
+                propulsion.get_engine(j).init_running()
+            propulsion.get_steady_state()
 
     def set_initial_conditions(self, init_conditions=None):
         """
@@ -146,11 +151,18 @@ class Simulation:
 
         :return : float
         """
-
-        if prop.access == 'R':
-            if prop.update:
-                prop.update(self)
-        return self.jsbsim_exec.get_property_value(prop.name_jsbsim)
+        if isinstance(prop, Property):
+            if prop.access == 'R':
+                if prop.update:
+                    prop.update(self)
+            return self.jsbsim_exec.get_property_value(prop.name_jsbsim)
+        elif isinstance(prop, CustomProperty):
+            if 'R' in prop.access and prop.read:
+                return prop.read(self)
+            else:
+                raise RuntimeError(f'{prop} is not readable')
+        else:
+            raise ValueError(f"prop type unhandled: {type(prop)} ({prop})")
 
     def set_property_value(self, prop, value):
         """
@@ -161,23 +173,30 @@ class Simulation:
         :param value: float
 
         """
-
         # set value in property bounds
-        if value < prop.min:
-            value = prop.min
-        elif value > prop.max:
-            value = prop.max
+        if isinstance(prop, Property):
+            if value < prop.min:
+                value = prop.min
+            elif value > prop.max:
+                value = prop.max
 
-        self.jsbsim_exec.set_property_value(prop.name_jsbsim, value)
+            self.jsbsim_exec.set_property_value(prop.name_jsbsim, value)
 
-        if 'W' in prop.access:
-            if prop.update:
-                prop.update(self)
+            if 'W' in prop.access:
+                if prop.update:
+                    prop.update(self)
+        elif isinstance(prop, CustomProperty):
+            if 'W' in prop.access and prop.write:
+                return prop.write(self, value)
+            else:
+                raise RuntimeError(f'{prop} is not readable')
+        else:
+            raise ValueError(f"prop type unhandled: {type(prop)} ({prop})")
 
-    def get_state(self):
+    def get_sim_state(self):
         return {prop: self.get_property_value(prop) for prop in Catalog.values()}
 
-    def set_state(self,state):
+    def state_to_ic(self, state):
         init_conditions = {}
 
         state_to_ic = {Catalog.position_lat_gc_deg: Catalog.ic_lat_gc_deg,
@@ -203,3 +222,8 @@ class Simulation:
                 elif 'RW' in prop.access:
                     init_conditions[prop] = value
         return init_conditions
+
+    def set_sim_state(self, state):
+        init_conditions = self.state_to_ic(state)
+        self.jsbsim_exec.reset_to_initial_conditions(0)
+        self.initialise(init_conditions)

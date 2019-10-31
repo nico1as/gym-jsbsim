@@ -138,7 +138,7 @@ class JSBSimEnv(gym.Env):
 
         return is_not_contained or self.task.is_terminal(self.state, self.sim)
 
-    def render(self, mode='human'):
+    def render(self, mode='human', **kwargs):
         """Renders the environment.
 
         The set of supported modes varies per environment. (And some
@@ -162,7 +162,8 @@ class JSBSimEnv(gym.Env):
 
         :param mode: str, the mode to render with
         """
-        output = self.task.get_props_output()
+        self.task.render(self.sim, mode=mode, **kwargs)
+        """output = self.task.get_output()
 
         if mode == 'human':
             pass
@@ -170,6 +171,7 @@ class JSBSimEnv(gym.Env):
             pass
         else:
             pass
+        """
 
     def seed(self, seed=None):
         """
@@ -220,29 +222,22 @@ class JSBSimEnv(gym.Env):
 
         """
         obs_list = self.sim.get_property_values(self.task.get_observation_var())
-        obs_tuple = ()
-        for obs in obs_list:
-            obs_tuple += (np.array([obs]),)
-        return obs_tuple
+        return tuple([np.array([obs]) for obs in obs_list])
 
     def get_sim_time(self):
         """ Gets the simulation time from sim, a float. """
-
         return self.sim.get_sim_time()
 
-    def get_full_state(self):
-        return self.sim.get_state()
+    def get_state(self):
+        return self.sim.get_sim_state()
 
     def _get_clipped_state(self):
-        clipped_state = np.clip(self.state,
-                                [o.low for o in self.observation_space],
-                                [o.high for o in self.observation_space])
-        # Shape the state as a tuple of arrays
-        clipped_state = tuple(np.array([val]) for val in clipped_state.squeeze())
+        clipped = [
+            np.clip(self.state[i], o.low, o.high) if self.task.state_var[i].clipped else self.state[i]
+            for i, o in enumerate(self.observation_space)
+        ]
+        return tuple(clipped)
 
-        return clipped_state
-
-    def set_full_state(self, state):
-        init_conditions = self.sim.set_state(state)
-        self.task.define_init_conditions(init_conditions)
-        self.reset()
+    def set_state(self, state):
+        self.sim.set_sim_state(state)
+        self.state = self.get_observation()
