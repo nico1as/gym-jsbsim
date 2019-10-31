@@ -105,7 +105,7 @@ class HeadingControlTask(Task):
     def is_terminal(self, state, sim):
         # Change heading every 150 seconds
         if sim.get_property_value(c.simulation_sim_time_sec) >= sim.get_property_value(c.steady_flight):
-            # if the traget heading was not reach before, we stop the simulation
+            # if the target heading was not reached before, we stop the simulation
             if math.fabs(sim.get_property_value(c.delta_heading)) > 10:
                 return True
             if math.fabs(sim.get_property_value(c.delta_altitude)) >= 100:
