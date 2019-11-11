@@ -1,4 +1,6 @@
-[![Build Status](https://travis-ci.org/galleon/gym-jsbsim.svg?branch=new)](https://travis-ci.org/galleon/gym-jsbsim)
+[![ Windows Build Status](http://badges.herokuapp.com/travis/galleon/gym-jsbsim?env=BADGE=windows&label=windows&branch=new)](https://travis-ci.org/galleon/gym-jsbsim) [![ Linux Build Status](http://badges.herokuapp.com/travis/galleon/gym-jsbsim?env=BADGE=linux&label=linux&branch=new)](https://travis-ci.org/galleon/gym-jsbsim) [![ MacOS Build Status](http://badges.herokuapp.com/travis/galleon/gym-jsbsim?env=BADGE=osx&label=OSX&branch=new)](https://travis-ci.org/galleon/gym-jsbsim) [![PyPI version](https://badge.fury.io/py/gym-jsbsim.svg)](https://badge.fury.io/py/gym-jsbsim) [![HitCount](http://hits.dwyl.com/galleon/gym-jsbsim.svg)](http://hits.dwyl.com/galleon/gym-jsbsim)
+
+
 
 # JSBSim Aircraft Simulator for Open AI Gym Environment
 
@@ -44,17 +46,17 @@ pip install gym-jsbsim
 So far, is available:
 
  * [x] Heading Task: *GymJsbsim-HeadingControlTask-v0*: The aircraft should maintain its initial heading and altitude. During the simulation, the aircraft should turn to reach a new heading every 150 seconds with an incremental difficulty.
- * [x] Taxi task: *GymJsbsim-TaxiControlTask-v0*: The aircraft should follow a predifined trajectory on the runaway. 
+ * [x] Taxi task: *GymJsbsim-TaxiControlTask-v0*: The aircraft should follow a predifined trajectory on the runaway.
  * [x] Taxi with AutoPilot task: *GymJsbsim-TaxiapControlTask-v0*: The aircraft should follow a predifined trajectory on the runaway. The aircraft velocity is manage by an autopilot.
  * [x] Approach Task: *GymJsbsim-ApproachControlTask-v0*: The aircraft should decrese its altitude (it is still a draft environement and not realitic in regards to appraoch procedure).
- 
+
 ## Heading Task
 
 ```
 import gym
 import gym_jsbsim
 
-env = gym.make("GymJsbsim-HeadingControlTask-v0")   
+env = gym.make("GymJsbsim-HeadingControlTask-v0")
 env.reset()
 done = False
 
@@ -88,21 +90,21 @@ The input state set is a vector of 7 parameters:
 
 ```
 state_var = [c.delta_altitude, # the delta altitude between the aircraft and target altitude
-             c.delta_heading, # the delta heading between the aircraft and target heading
-             c.velocities_v_down_fps, # the vertical velocity of the aircraft
-             c.velocities_vc_fps, # the air velocity of the aircraft
-             c.velocities_p_rad_sec, # roll axis velocity
-             c.velocities_q_rad_sec, # pitch axis velocity
-             c.velocities_r_rad_sec] # yaw axis velocity
+	     c.delta_heading, # the delta heading between the aircraft and target heading
+	     c.velocities_v_down_fps, # the vertical velocity of the aircraft
+	     c.velocities_vc_fps, # the air velocity of the aircraft
+	     c.velocities_p_rad_sec, # roll axis velocity
+	     c.velocities_q_rad_sec, # pitch axis velocity
+	     c.velocities_r_rad_sec] # yaw axis velocity
 ```
 
 The action set is a vector of 4 parameters:
 
 ```
-action_var = [c.fcs_aileron_cmd_norm, 
-              c.fcs_elevator_cmd_norm,
-              c.fcs_rudder_cmd_norm,
-              c.fcs_throttle_cmd_norm]
+action_var = [c.fcs_aileron_cmd_norm,
+	      c.fcs_elevator_cmd_norm,
+	      c.fcs_rudder_cmd_norm,
+	      c.fcs_throttle_cmd_norm]
 ```
 
 The reward is compute as a weighted function between:
@@ -116,7 +118,7 @@ The reward is compute as a weighted function between:
 import gym
 import gym_jsbsim
 
-env = gym.make("GymJsbsim-TaxiControlTask-v0")      
+env = gym.make("GymJsbsim-TaxiControlTask-v0")
 env.reset()
 done = False
 
@@ -130,7 +132,7 @@ In this environnement, the aircraft should behave on ground and following a spec
 For this environement, we have extract a path from the AMDB files of blagnac airport:
 
 <p align="center">
-  <img width="600" height="400" src=./gym_jsbsim/docs/l2f_taxi_path.png>
+  <img width="600" height="400" src=https://github.com/galleon/gym-jsbsim/blob/new/gym_jsbsim/docs/l2f_taxi_path.png?raw=true>
 </p>
 
 and extracted from this path a list of geodesic coordinates that the aircraft should follow.
@@ -138,7 +140,7 @@ and extracted from this path a list of geodesic coordinates that the aircraft sh
 As state set for this environment, we compute every timestep, the distance (di) and angle (ai) to the next 4 path points according to location of the aircraft (ie: d1 to d4 and a1 to a4)
 
 <p align="center">
-  <img src=./gym_jsbsim/docs/l2f_taxistate.png>
+  <img src=https://github.com/galleon/gym-jsbsim/blob/new/gym_jsbsim/docs/l2f_taxistate.png?raw=true>
 </p>
 
 
@@ -146,17 +148,17 @@ The full state set is:
 
 ```
 state_var = [c.velocities_vc_fps,
-             c.shortest_dist,
-             c.d1, c.d2, c.d3, c.d4,
-             c.a1, c.a2, c.a3, c.a4]
+	     c.shortest_dist,
+	     c.d1, c.d2, c.d3, c.d4,
+	     c.a1, c.a2, c.a3, c.a4]
 ```
 
 The action set is define with 3 parameters that correspond to throttle, brake and steer commands:
 
 ```
 action_var = [c.fcs_steer_cmd_norm,
-              c.fcs_center_brake_cmd_norm,
-              c.fcs_throttle_cmd_norm]
+	      c.fcs_center_brake_cmd_norm,
+	      c.fcs_throttle_cmd_norm]
 ```
 
 the reward is simply computed with the distance to the centerline
@@ -169,7 +171,7 @@ The scenario is over if the aircraft overtake the centerline from 10 meters or m
 import gym
 import gym_jsbsim
 
-env = gym.make("GymJsbsim-TaxiapControlTask-v0")      
+env = gym.make("GymJsbsim-TaxiapControlTask-v0")
 env.reset()
 done = False
 
@@ -178,16 +180,16 @@ while not done:
    state, reward, done, _ = env.step(action)
 ```
 
-This is the same Taxi environement with an autopilot to manage the aircraft velocity.   
+This is the same Taxi environement with an autopilot to manage the aircraft velocity.
 The velocity during straight line is set to 20 knots and the velocity during turn is set to 7 knots.
 
 The state set is unchange:
 
 ```
 state_var = [c.velocities_vc_fps,
-             c.shortest_dist,
-             c.d1, c.d2, c.d3, c.d4,
-             c.a1, c.a2, c.a3, c.a4]
+	     c.shortest_dist,
+	     c.d1, c.d2, c.d3, c.d4,
+	     c.a1, c.a2, c.a3, c.a4]
 ```
 
 but the action set is therefor focus on the steering command only:
@@ -201,7 +203,7 @@ the reward is unchanged and computed with the distance to the centerline
 
 ## Test
 
-You could run a random agent with 
+You could run a random agent with
 ```
 python test_agent.py
 ```
@@ -211,12 +213,8 @@ python test_agent.py
 
 ## Links
 
-Open AI GYM: https://github.com/openai/gym  
-JSBSim: https://github.com/JSBSim-Team/jsbsim  
+Open AI GYM: https://github.com/openai/gym
+
+JSBSim: https://github.com/JSBSim-Team/jsbsim
+
 Gor-Ren Gym-Jsbsim repo: https://github.com/Gor-Ren/gym-jsbsim
-
-
-
-
-
-

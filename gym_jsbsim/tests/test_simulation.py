@@ -154,5 +154,3 @@ class TestSimulation(unittest.TestCase):
             else:
                 error = math.fabs(p2 - p1)/max(math.fabs(p1), math.fabs(p2))
             self.assertLess(error, self.error_max, 'The two simulations have diverged')
-
-
