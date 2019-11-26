@@ -65,32 +65,19 @@ while not done:
    state, reward, done, _ = env.step(action)
 ```
 
-In this task, the aircraft should perform a stable steady flight following its initial heading and altitude. Every 150 seconds, a new target heading is set. At each time the target heading is more and more complecated to reach, starting with a delta of 10° to finish with a delta of 90°, alterning left and right turn:
+In this task, the aircraft should perform a stable steady flight following its initial heading and altitude. Every 150 seconds, a new target heading is set. At each time the target heading is more and more complicated to reach, starting with a delta of ±10° (random sign), following with ±20°, then ±30° and so on.
 
-So, the scenario is as follow:
+A terminal state is reached:
+ * If the target heading is not reached with an accuracy of 10° during the 150 seconds.
+ * If the aircraft is more than 100 feet away from its target altitude when the heading target changes.
 
- * initial heading = 100°
- * [0, 150]: target heading = 100° (delta heading = 0°)
- * [150, 300]: target heading = 110° (delta heading = +10°)
- * [300, 450]: target heading = 90° (delta heading = -20°)
- * [450, 600]: target heading = 120° (delta heading = +30°)
- * [600, 750]: target heading = 80° (delta heading = -40°)
- * [750, 900]: target heading = 130° (delta heading = +50°)
- * [900, 1050]: target heading = 70° (delta heading = -60°)
- * [1050, 1200]: target heading = 140° (delta heading = +70°)
- * [1200, 1350]: target heading = 60° (delta heading = -80°)
- * [1350, 1500]: target heading = 150° (delta heading = +90°)
-
-Terminal conditions are the following:
- * If the aircraft is up or under 300 feets from its target altitude, the scenario is over.
- * If the target heading is not reach with an accuracy of 10° during the 150 seconds, the scenario is over.
- * The full scenario will not exeed 1500 seconds.
-
-The input state set is a vector of 7 parameters:
+The input state set is a vector of 9 parameters:
 
 ```
 state_var = [c.delta_altitude, # the delta altitude between the aircraft and target altitude
 	     c.delta_heading, # the delta heading between the aircraft and target heading
+         c.attitude_pitch_rad,
+         c.attitude_roll_rad,
 	     c.velocities_v_down_fps, # the vertical velocity of the aircraft
 	     c.velocities_vc_fps, # the air velocity of the aircraft
 	     c.velocities_p_rad_sec, # roll axis velocity
@@ -107,10 +94,29 @@ action_var = [c.fcs_aileron_cmd_norm,
 	      c.fcs_throttle_cmd_norm]
 ```
 
-The reward is compute as a weighted function between:
- * accuracy of aircraft altitude in regards to the target
- * accuracy of aircraft heading in regards to the target
- * stability of the aircraft in regards to the 3 axes acceleration feeling by the pilot in the cockpit
+The reward is computed as a function of:
+ * heading deviation from target
+ * altitude deviation from target
+ * roll angle
+ * speed
+ * acceleration perceived by the pilot in the cockpit
+
+## Heading and Altitude Task
+
+```
+import gym
+import gym_jsbsim
+
+env = gym.make("GymJsbsim-HeadingAltitudeControlTask-v0")
+env.reset()
+done = False
+
+while not done:
+   action = env.action_space.sample()
+   state, reward, done, _ = env.step(action)
+```
+
+This is the same as the Heading Task, but the target altitude also changes every 150 seconds. The altitude changes are: first ±100 feet (random sign), then ±200 feet, ±300 feet, and so on, but modulo 5000 feet and with a minimum target altitude of 3000 feet.
 
 ## Taxi Task
 

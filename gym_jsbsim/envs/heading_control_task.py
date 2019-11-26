@@ -5,7 +5,7 @@ import random
 import numpy as np
 
 """
-    A task in which the agent must perform steady, level flight maintaining its initial heading.
+    A task in which the agent must perform steady, level flight following a certain heading.
     Every 150 sec a new target heading is set.
 """
 
@@ -91,18 +91,13 @@ class HeadingControlTask(Task):
             if math.fabs(sim.get_property_value(c.delta_altitude)) >= 100:
                 return True
 
-            alt_delta = (int(sim.get_property_value(c.steady_flight)/150) * 100) % 5000
-            sign = random.choice([+1., -1.])
-            new_alt = sim.get_property_value(c.target_altitude_ft) + sign * alt_delta
-
             angle = int(sim.get_property_value(c.steady_flight)/150) * 10
             sign = random.choice([+1., -1.])
             new_heading = sim.get_property_value(c.target_heading_deg) + sign * angle
             new_heading = (new_heading +360) % 360
 
-            #print(f'Time to change: {sim.get_property_value(c.simulation_sim_time_sec)} (Altitude: {sim.get_property_value(c.target_altitude_ft)} -> {new_alt}, Heading: {sim.get_property_value(c.target_heading_deg)} -> {new_heading})')
+            #print(f'Time to change: {sim.get_property_value(c.simulation_sim_time_sec)} (Heading: {sim.get_property_value(c.target_heading_deg)} -> {new_heading})')
 
-            sim.set_property_value(c.target_altitude_ft, new_alt)
             sim.set_property_value(c.target_heading_deg, new_heading)
 
             sim.set_property_value(c.steady_flight,sim.get_property_value(c.steady_flight)+150)
