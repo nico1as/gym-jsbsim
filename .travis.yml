@@ -20,18 +20,34 @@ matrix:
     os: windows
     language: shell
     before_install:
-    - choco install python --version=3.6.5
-    - python -m pip install --upgrade pip
-    - pip install https://download.lfd.uci.edu/pythonlibs/t7epjj8p/Shapely-1.6.4.post2-cp36-cp36m-win_amd64.whl
-    env: PATH=/c/Python36:/c/Python36/Scripts:$PATH BADGE=windows
+    - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86_64.sh -O miniconda.sh;
+    - bash miniconda.sh -b -p $HOME/miniconda
+    - source "$HOME/miniconda/etc/profile.d/conda.sh"
+    - hash -r
+    - conda config --set always_yes yes --set changeps1 no
+    - conda update -q conda
+    # Useful for debugging any issues with conda
+    - conda info -a
+
+    - conda create -q -n test-environment python=3.6.5 shapely pip
+    - conda activate test-environment
+    env: BADGE=windows
   - name: Python 3.7 on Windows
     os: windows
     language: shell
     before_install:
-    - choco install python --version=3.7.4
-    - python -m pip install --upgrade pip
-    - pip install https://download.lfd.uci.edu/pythonlibs/t7epjj8p/Shapely-1.6.4.post2-cp37-cp37m-win_amd64.whl
-    env: PATH=/c/Python37:/c/Python37/Scripts:$PATH BADGE=windows
+    - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86_64.sh -O miniconda.sh;
+    - bash miniconda.sh -b -p $HOME/miniconda
+    - source "$HOME/miniconda/etc/profile.d/conda.sh"
+    - hash -r
+    - conda config --set always_yes yes --set changeps1 no
+    - conda update -q conda
+    # Useful for debugging any issues with conda
+    - conda info -a
+
+    - conda create -q -n test-environment python=3.7.4 shapely pip
+    - conda activate test-environment
+    env: BADGE=windows
 install:
 - pip3 install .
 script:
