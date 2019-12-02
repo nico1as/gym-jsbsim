@@ -65,7 +65,6 @@ class TestSimulation(unittest.TestCase):
                 error = math.fabs(p2 - p1)/max(math.fabs(p1), math.fabs(p2))
             self.assertLess(error, self.error_max, 'The two simulations have diverged')
 
-
     def test_get_state_set_state_constant_action(self):
         constant_action = [1, 1, 1, 1]
 
@@ -103,7 +102,6 @@ class TestSimulation(unittest.TestCase):
             else:
                 error = math.fabs(p2 - p1) / max(math.fabs(p1), math.fabs(p2))
             self.assertLess(error, self.error_max, 'The two simulations have diverged')
-
 
     def test_get_state_set_state_oscillating_altitude(self):
         # taking actions only on the elevator command

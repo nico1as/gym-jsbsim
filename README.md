@@ -1,4 +1,4 @@
-[![ Windows Build Status](http://badges.herokuapp.com/travis/galleon/gym-jsbsim?env=BADGE=windows&label=windows&branch=new)](https://travis-ci.org/galleon/gym-jsbsim) [![ Linux Build Status](http://badges.herokuapp.com/travis/galleon/gym-jsbsim?env=BADGE=linux&label=linux&branch=new)](https://travis-ci.org/galleon/gym-jsbsim) [![ MacOS Build Status](http://badges.herokuapp.com/travis/galleon/gym-jsbsim?env=BADGE=osx&label=OSX&branch=new)](https://travis-ci.org/galleon/gym-jsbsim) [![PyPI version](https://badge.fury.io/py/gym-jsbsim.svg)](https://badge.fury.io/py/gym-jsbsim) [![HitCount](http://hits.dwyl.com/galleon/gym-jsbsim.svg)](http://hits.dwyl.com/galleon/gym-jsbsim)
+[![ Windows Build Status](http://badges.herokuapp.com/travis/galleon/gym-jsbsim?env=BADGE=windows&label=windows&branch=master)](https://travis-ci.org/galleon/gym-jsbsim) [![ Linux Build Status](http://badges.herokuapp.com/travis/galleon/gym-jsbsim?env=BADGE=linux&label=linux&branch=master)](https://travis-ci.org/galleon/gym-jsbsim) [![ MacOS Build Status](http://badges.herokuapp.com/travis/galleon/gym-jsbsim?env=BADGE=osx&label=OSX&branch=master)](https://travis-ci.org/galleon/gym-jsbsim) [![PyPI version](https://badge.fury.io/py/gym-jsbsim.svg)](https://badge.fury.io/py/gym-jsbsim) [![HitCount](http://hits.dwyl.com/galleon/gym-jsbsim.svg)](http://hits.dwyl.com/galleon/gym-jsbsim)
 
 
 
@@ -30,11 +30,11 @@ pip install gym-jsbsim
 First, you have to install the Shapely library (issue [#39](https://github.com/galleon/gym-jsbsim/issues/39)) with :
 * ##### Python 3.6 :
    ```
-   pip install https://download.lfd.uci.edu/pythonlibs/g5apjq5m/Shapely-1.6.4.post2-cp36-cp36m-win_amd64.whl
+   pip install https://download.lfd.uci.edu/pythonlibs/t7epjj8p/Shapely-1.6.4.post2-cp36-cp36m-win_amd64.whl
    ```
 * ##### Python 3.7 :
    ```
-   pip install https://download.lfd.uci.edu/pythonlibs/g5apjq5m/Shapely-1.6.4.post2-cp37-cp37m-win_amd64.whl
+   pip install https://download.lfd.uci.edu/pythonlibs/t7epjj8p/Shapely-1.6.4.post2-cp37-cp37m-win_amd64.whl
    ```
 Then, you can install the package with the pip install command :
 ```
@@ -138,7 +138,7 @@ In this environnement, the aircraft should behave on ground and following a spec
 For this environement, we have extract a path from the AMDB files of blagnac airport:
 
 <p align="center">
-  <img width="600" height="400" src=https://github.com/galleon/gym-jsbsim/blob/new/gym_jsbsim/docs/l2f_taxi_path.png?raw=true>
+  <img width="600" height="400" src=https://github.com/galleon/gym-jsbsim/blob/master/gym_jsbsim/docs/l2f_taxi_path.png?raw=true>
 </p>
 
 and extracted from this path a list of geodesic coordinates that the aircraft should follow.
@@ -146,7 +146,7 @@ and extracted from this path a list of geodesic coordinates that the aircraft sh
 As state set for this environment, we compute every timestep, the distance (di) and angle (ai) to the next 4 path points according to location of the aircraft (ie: d1 to d4 and a1 to a4)
 
 <p align="center">
-  <img src=https://github.com/galleon/gym-jsbsim/blob/new/gym_jsbsim/docs/l2f_taxistate.png?raw=true>
+  <img src=https://github.com/galleon/gym-jsbsim/blob/master/gym_jsbsim/docs/l2f_taxistate.png?raw=true>
 </p>
 
 

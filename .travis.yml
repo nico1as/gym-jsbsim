@@ -22,7 +22,7 @@ matrix:
     before_install:
     - choco install python --version=3.6.5
     - python -m pip install --upgrade pip
-    - pip install https://download.lfd.uci.edu/pythonlibs/g5apjq5m/Shapely-1.6.4.post2-cp36-cp36m-win_amd64.whl
+    - pip install https://download.lfd.uci.edu/pythonlibs/t7epjj8p/Shapely-1.6.4.post2-cp36-cp36m-win_amd64.whl
     env: PATH=/c/Python36:/c/Python36/Scripts:$PATH BADGE=windows
   - name: Python 3.7 on Windows
     os: windows
@@ -30,7 +30,7 @@ matrix:
     before_install:
     - choco install python --version=3.7.4
     - python -m pip install --upgrade pip
-    - pip install https://download.lfd.uci.edu/pythonlibs/g5apjq5m/Shapely-1.6.4.post2-cp37-cp37m-win_amd64.whl
+    - pip install https://download.lfd.uci.edu/pythonlibs/t7epjj8p/Shapely-1.6.4.post2-cp37-cp37m-win_amd64.whl
     env: PATH=/c/Python37:/c/Python37/Scripts:$PATH BADGE=windows
 install:
 - pip3 install .
@@ -47,7 +47,6 @@ deploy:
   skip_existing: true
   skip_cleanup: true
   on:
-    branch: new
     tags: true
 env:
   global:
