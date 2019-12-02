@@ -32,7 +32,6 @@ matrix:
 
     - conda create -q -n test-environment python=3.6.5 shapely pip
     - conda activate test-environment
-    - echo "alias pip3='pip'" >> $HOME/.bash_profile
     env: BADGE=windows
   - name: Python 3.7 on Windows
     os: windows
@@ -50,14 +49,13 @@ matrix:
 
     - conda create -q -n test-environment python=3.7.4 shapely pip
     - conda activate test-environment
-    - echo "alias pip3='pip'" >> $HOME/.bash_profile
     env: BADGE=windows
 install:
-- pip3 install .
+- pip3 install . || pip install .
 script:
 - python3 -m unittest || python -m unittest
 before_deploy:
-- pip3 install wheel twine
+- pip3 install wheel twine || pip install wheel twine
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then chmod +x build_tools/build_wheels.sh && docker run
   --rm -e TRAVIS_PYTHON_VERSION=$TRAVIS_PYTHON_VERSION -v $PWD:/io quay.io/pypa/manylinux2010_x86_64 /io/build_tools/build_wheels.sh && ls dist/;
   fi
