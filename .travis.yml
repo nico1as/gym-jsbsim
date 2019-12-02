@@ -20,9 +20,7 @@ matrix:
     os: windows
     language: shell
     before_install:
-    - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86_64.exe -O miniconda.exe;
-    - miniconda.exe -b -p $HOME/miniconda
-    - $HOME/miniconda/Scripts/activate
+    - choco install miniconda3 --params="'/AddToPath:1'"
     - hash -r
     - conda config --set always_yes yes --set changeps1 no
     - conda update -q conda
@@ -36,9 +34,7 @@ matrix:
     os: windows
     language: shell
     before_install:
-    - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86_64.exe -O miniconda.exe;
-    - miniconda.exe -b -p $HOME/miniconda
-    - $HOME/miniconda/Scripts/activate
+    - choco install miniconda3 --params="'/AddToPath:1'"
     - hash -r
     - conda config --set always_yes yes --set changeps1 no
     - conda update -q conda
