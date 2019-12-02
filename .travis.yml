@@ -32,7 +32,7 @@ matrix:
 
     - conda create -q -n test-environment python=3.6.5 shapely pip
     - conda activate test-environment
-    - alias pip3='pip'
+    - echo "alias pip3='pip'" >> $HOME/.bashrc
     env: BADGE=windows
   - name: Python 3.7 on Windows
     os: windows
@@ -50,7 +50,7 @@ matrix:
 
     - conda create -q -n test-environment python=3.7.4 shapely pip
     - conda activate test-environment
-    - alias pip3='pip'
+    - echo "alias pip3='pip'" >> $HOME/.bashrc
     env: BADGE=windows
 install:
 - pip3 install .
