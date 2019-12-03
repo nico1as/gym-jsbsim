@@ -22,7 +22,6 @@ matrix:
     before_install:
     - choco install miniconda3 --params="'/AddToPath:1'"
     - C:/Tools/miniconda3/Scripts/conda.exe init --all
-    - source $HOME/.bashrc
     - source $HOME/.bash_profile
     - hash -r
     - conda config --set always_yes yes --set changeps1 no
@@ -39,7 +38,6 @@ matrix:
     before_install:
     - choco install miniconda3 --params="'/AddToPath:1'"
     - C:/Tools/miniconda3/Scripts/conda.exe init --all
-    - source $HOME/.bashrc
     - source $HOME/.bash_profile
     - hash -r
     - conda config --set always_yes yes --set changeps1 no
