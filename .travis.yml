@@ -20,24 +20,40 @@ matrix:
     os: windows
     language: shell
     before_install:
-    - choco install python --version=3.6.5
-    - python -m pip install --upgrade pip
-    - pip install https://download.lfd.uci.edu/pythonlibs/t7epjj8p/Shapely-1.6.4.post2-cp36-cp36m-win_amd64.whl
-    env: PATH=/c/Python36:/c/Python36/Scripts:$PATH BADGE=windows
+    - choco install miniconda3 --params="'/AddToPath:1'"
+    - C:/Tools/miniconda3/Scripts/conda.exe init --all
+    - source $HOME/.bash_profile
+    - hash -r
+    - conda config --set always_yes yes --set changeps1 no
+    - conda update -q conda
+    # Useful for debugging any issues with conda
+    - conda info -a
+
+    - conda create -q -n test-environment python=3.6.5 shapely pip
+    - conda activate test-environment
+    env: BADGE=windows
   - name: Python 3.7 on Windows
     os: windows
     language: shell
     before_install:
-    - choco install python --version=3.7.4
-    - python -m pip install --upgrade pip
-    - pip install https://download.lfd.uci.edu/pythonlibs/t7epjj8p/Shapely-1.6.4.post2-cp37-cp37m-win_amd64.whl
-    env: PATH=/c/Python37:/c/Python37/Scripts:$PATH BADGE=windows
+    - choco install miniconda3 --params="'/AddToPath:1'"
+    - C:/Tools/miniconda3/Scripts/conda.exe init --all
+    - source $HOME/.bash_profile
+    - hash -r
+    - conda config --set always_yes yes --set changeps1 no
+    - conda update -q conda
+    # Useful for debugging any issues with conda
+    - conda info -a
+
+    - conda create -q -n test-environment python=3.7.4 shapely pip
+    - conda activate test-environment
+    env: BADGE=windows
 install:
-- pip3 install .
+- pip3 install . || pip install .
 script:
 - python3 -m unittest || python -m unittest
 before_deploy:
-- pip3 install wheel twine
+- pip3 install wheel twine || pip install wheel twine
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then chmod +x build_tools/build_wheels.sh && docker run
   --rm -e TRAVIS_PYTHON_VERSION=$TRAVIS_PYTHON_VERSION -v $PWD:/io quay.io/pypa/manylinux2010_x86_64 /io/build_tools/build_wheels.sh && ls dist/;
   fi
