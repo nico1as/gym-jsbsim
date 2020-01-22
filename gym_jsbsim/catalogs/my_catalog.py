@@ -2,7 +2,7 @@ from enum import Enum
 from gym.spaces import Box, Discrete
 from gym_jsbsim.catalogs.property import Property
 from gym_jsbsim.catalogs.jsbsim_catalog import JsbsimCatalog
-from gym_jsbsim.envs.taxi_utils2 import *
+from gym_jsbsim.envs.taxi_utils import *
 from gym_jsbsim.catalogs import utils
 from numpy.linalg import norm
 
