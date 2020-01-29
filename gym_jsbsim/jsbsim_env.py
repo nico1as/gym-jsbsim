@@ -162,16 +162,7 @@ class JSBSimEnv(gym.Env):
 
         :param mode: str, the mode to render with
         """
-        self.task.render(self.sim, mode=mode, **kwargs)
-        """output = self.task.get_output()
-
-        if mode == 'human':
-            pass
-        elif mode == 'csv':
-            pass
-        else:
-            pass
-        """
+        return self.task.render(self.sim, mode=mode, **kwargs)
 
     def seed(self, seed=None):
         """
