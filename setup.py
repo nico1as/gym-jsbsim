@@ -63,6 +63,6 @@ setup(
                            extra_compile_args=extra_compile_args,
                            language='c++')],
     package_data={'gym_jsbsim': ['jsbsim/aircraft/*/*.xml','jsbsim/systems/*.xml','jsbsim/engine/*.xml']},
-    install_requires=['cython>=0.25','gym>=0.12.5','shapely','geographiclib'],
+    install_requires=['cython>=0.25','gym>=0.12.5','shapely','geographiclib','folium'],
     use_scm_version={"version_scheme": lambda v: v.format_with('{tag}' if not v.distance>0 else '{tag}.dev{distance}'), "local_scheme": lambda v: ""},
     setup_requires=['cython>=0.25', 'setuptools_scm'])

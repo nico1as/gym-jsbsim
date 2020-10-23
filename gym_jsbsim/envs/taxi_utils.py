@@ -1,6 +1,9 @@
 import numpy as np
+import folium
 from shapely.geometry import Point, LineString
 from geographiclib.geodesic import Geodesic
+
+from gym_jsbsim.catalogs.catalog import Catalog as prp
 
 def get_bearing(p1, p2):
     """
@@ -26,6 +29,8 @@ class taxi_path(object):
         
         self.centerline = LineString(self.centerlinepoints)
         self.shortest_dist = None
+        self.map = None
+        self.path = None
 
     def update_path2(self, aircraft_loc, aircraft_heading, id_path, nb_point):
         """
@@ -60,3 +65,48 @@ class taxi_path(object):
         self.shortest_dist = self.centerline.distance(Point(aircraft_loc))*100000 #Point((1.3578, 43.587434)).distance(Point((1.3577, 43.587288)))*100000 = 17m
 
         return output, next_point
+    
+    def clear_rendering(self):
+        """Clear the map object and rendered path so th next call to render_simulation()
+           will start from a fresh map and empty path
+        """
+        self.path = None
+        self.map = None
+    
+    def render_simulation(self, sim, html_filename='gym_jsb_sim_map.html', refresh_period=60):
+        """Render the simulation, i.e. current taxiing path on a folium map written to the
+           given html file which is automatically updated by the browser ever given refresh
+           period (in seconds).
+
+        # Parameters
+        sim: Simulation object
+        html_filename: Path to the html file to write containing the folium rendering
+        refresh_period: period time in seconds between 2 successive automatic page updates
+                        by the browser (different from the period time between 2 calls to
+                        this method)
+        """
+        lon = sim.get_property_value(prp.position_long_gc_deg)
+        lat = sim.get_property_value(prp.position_lat_geod_deg)
+        html_update_filename = html_filename[0:html_filename.rfind('.')] + '_update.html'
+        if (self.map is None):
+            self.map = folium.Map(location=[lat, lon], zoom_start=18)
+            for p in self.centerlinepoints:
+                folium.Marker((p[1], p[0]), popup=p).add_to(self.map)
+            folium.PolyLine(taxiPath.centerlinepoints, color='blue', weight=2.5, opacity=1).add_to(self.map)
+            self.path = folium.PolyLine([(lat, lon)], color='red', weight=2.5, opacity=1)
+            self.path.add_to(self.map)
+            f = open(html_filename, 'w')
+            f.write('<!DOCTYPE html>\n' +
+                    '<HTML>\n' +
+                    '<HEAD>\n' +
+                    '<META http-equiv="refresh" content="{}">\n' +
+                    '</HEAD>\n' +
+                    '<FRAMESET>\n' +
+                    '<FRAME src="{}">\n' +
+                    '</FRAMESET>\n' +
+                    '</HTML>'.format(refresh_period, html_update_filename))
+            f.close()
+        else:
+            self.path.locations.append(folium.utilities.validate_location((lat, lon)))
+            self.map.location = folium.utilities.validate_location((lat, lon))
+        self.map.save(html_update_filename)
