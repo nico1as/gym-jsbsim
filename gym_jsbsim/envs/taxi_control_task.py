@@ -15,10 +15,10 @@ class TaxiControlTask(Task):
     action_var = [c.fcs_steer_cmd_norm, c.fcs_center_brake_cmd_norm, c.fcs_throttle_cmd_norm]
 
     k2f = 1.68781
-    # INIT_AC_LON = 1.369889125000043  # loop
-    # INIT_AC_LAT = 43.625578879000045 # loop
-    INIT_AC_LON = 1.37211666700005708  # attol
-    INIT_AC_LAT = 43.6189638890000424  # attol
+    INIT_AC_LON = 1.369889125000043  # loop
+    INIT_AC_LAT = 43.625578879000045 # loop
+#     INIT_AC_LON = 1.37211666700005708  # attol
+#     INIT_AC_LAT = 43.6189638890000424  # attol
     INIT_AC_HEADING = 323
     INITIAL_ALTITUDE_FT = 8.42
     INITIAL_VELOCITY_U = 7.0 * k2f  # 33.76 #20 knots/sec
