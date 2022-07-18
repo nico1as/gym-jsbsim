@@ -18,7 +18,7 @@ class JSBSimEnv(gym.Env):
     docstrings have been adapted or copied from the OpenAI Gym source code.
     """
 
-    metadata = {"render.modes": ["human", "csv"]}
+    metadata = {"render_modes": ["human", "csv"]}
 
     def __init__(self, task):
         """
