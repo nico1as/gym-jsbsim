@@ -6,6 +6,7 @@ except ImportError:
     pass
 
 from jsbsim import __version__ as jsbsim_version
+import jsbsim
 
 from gym.envs.registration import registry, register, make, spec
 from gym_jsbsim.envs import TASKS
@@ -25,11 +26,11 @@ with OpenAI Gym so that they can be instantiated with a gym.make(id)
        env = gym.make('GymJsbsim-{task}-v0')
 
 """
-if __jsbsim_version__ != jsbsim_version:
-    print("Warning: You are using jsbsim-{} while gym-jsbsin was generated with {}".format(jsbsim_version, __jsbsim_version__))
+#if __jsbsim_version__ != jsbsim_version:
+#    print("Warning: You are using jsbsim-{} while gym-jsbsim was generated with {}".format(jsbsim_version, __jsbsim_version__))
 
 if "JSBSIM_ROOT_DIR" not in os.environ:
-    os.environ["JSBSIM_ROOT_DIR"] = os.path.join(os.path.dirname(__file__), "jsbsim-" + __jsbsim_version__)
+    os.environ["JSBSIM_ROOT_DIR"] = jsbsim.get_default_root_dir()
 
 for task_name in TASKS:
     register(

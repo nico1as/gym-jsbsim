@@ -32,15 +32,19 @@ class DynamicCatalog(dict):
         :param jsbsim_props: list of 'name_jsbsim (access)' of jsbsim properties
 
         """
-        for jsbsim_prop in jsbsim_props:
-            [name_jsbsim, access] = jsbsim_prop.split(" ")
-            access = re.sub(r"[\(\)]", "", access)  # remove parenthesis from the flag
-            name = re.sub(r"_$", "", re.sub(r"[\-/\]\[]+", "_", name_jsbsim))  # get property name from jsbsim name
-            if name not in self:
-                try:
-                    self[name] = JsbsimCatalog[name].value
-                except KeyError:
-                    self[name] = Property(name_jsbsim=name_jsbsim, access=access)
+
+        jsbsim_propsList = jsbsim_props.split("\n")
+
+        for jsbsim_prop in jsbsim_propsList:
+            if jsbsim_prop is not '':
+                [name_jsbsim, access] = jsbsim_prop.split(" ")
+                access = re.sub(r"[\(\)]", "", access)  # remove parenthesis from the flag
+                name = re.sub(r"_$", "", re.sub(r"[\-/\]\[]+", "_", name_jsbsim))  # get property name from jsbsim name
+                if name not in self:
+                    try:
+                        self[name] = JsbsimCatalog[name].value
+                    except KeyError:
+                        self[name] = Property(name_jsbsim=name_jsbsim, access=access)
 
 
 # an instantiation of DynamicCatalog used for simulation
