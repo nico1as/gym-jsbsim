@@ -152,7 +152,7 @@ class JSBSimEnv(gym.Env):
         if mode is:
 
         - human: print on the terminal
-        - csv: output to cvs files
+        - csv: output to csv files
 
         Note:
 
