@@ -28,7 +28,7 @@ if version[:1] == "v":
 try:
     from jsbsim import __version__ as jsbsim_version # noqa: F401
 except ImportError:
-    pass
+    jsbsim_version = '1.1.12'
 
 print("Building wheels {}-{}".format(version, jsbsim_version))
 
