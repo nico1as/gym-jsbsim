@@ -18,7 +18,7 @@ class JSBSimEnv(gym.Env):
     docstrings have been adapted or copied from the OpenAI Gym source code.
     """
 
-    metadata = {'render.modes': ['human', 'csv']}
+    metadata = {"render.modes": ["human", "csv"]}
 
     def __init__(self, task):
         """
@@ -67,20 +67,19 @@ class JSBSimEnv(gym.Env):
         """
 
         if action is not None:
-            #print(action, self.action_space)
-            #nb_action = 0
+            # print(action, self.action_space)
+            # nb_action = 0
             # for x in action:
             #    nb_action += 1
             # print(nb_action)
             # print(len(self.action_space.spaces))
             if not len(action) == len(self.action_space.spaces):
-                raise ValueError(
-                    'mismatch between action and action space size')
+                raise ValueError("mismatch between action and action space size")
 
         self.state = self.make_step(action)
 
         reward, done, info = self.task.get_reward(self.state, self.sim), self.is_terminal(), {}
-        state = self.state if not done else self._get_clipped_state() # returned state should be in observation_space
+        state = self.state if not done else self._get_clipped_state()  # returned state should be in observation_space
 
         return state, reward, done, info
 
@@ -116,7 +115,12 @@ class JSBSimEnv(gym.Env):
         if self.sim:
             self.sim.close()
 
-        self.sim = Simulation(aircraft_name=self.task.aircraft_name, init_conditions=self.task.init_conditions, jsbsim_freq=self.task.jsbsim_freq, agent_interaction_steps=self.task.agent_interaction_steps)
+        self.sim = Simulation(
+            aircraft_name=self.task.aircraft_name,
+            init_conditions=self.task.init_conditions,
+            jsbsim_freq=self.task.jsbsim_freq,
+            agent_interaction_steps=self.task.agent_interaction_steps,
+        )
 
         self.state = self.get_observation()
 
@@ -138,7 +142,7 @@ class JSBSimEnv(gym.Env):
 
         return is_not_contained or self.task.is_terminal(self.state, self.sim)
 
-    def render(self, mode='human', **kwargs):
+    def render(self, mode="human", **kwargs):
         """Renders the environment.
 
         The set of supported modes varies per environment. (And some
@@ -193,7 +197,7 @@ class JSBSimEnv(gym.Env):
         return
 
     def close(self):
-        """ Cleans up this environment's objects
+        """Cleans up this environment's objects
 
 
 

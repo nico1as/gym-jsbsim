@@ -21,7 +21,7 @@ class Simulation:
 
         :param aircraft_name: name of aircraft to be loaded.
 
-            JSBSim looks for file '\model_name\model_name.xml' from root dir.
+            JSBSim looks for file '\aircraft_name\aircraft_name.xml' from root dir.
 
         :param init_conditions: dict mapping properties to their initial values.
 
@@ -33,13 +33,13 @@ class Simulation:
 
         """
 
-        self.jsbsim_exec = jsbsim.FGFDMExec(environ['JSBSIM_ROOT_DIR'])
+        self.jsbsim_exec = jsbsim.FGFDMExec(environ["JSBSIM_ROOT_DIR"])
         self.jsbsim_exec.set_debug_level(0)  # requests JSBSim not to output any messages whatsoever
 
         self.jsbsim_exec.load_model(aircraft_name)
 
         # collect all jsbsim properties in Catalog
-        Catalog.add_jsbsim_props(self.jsbsim_exec.query_property_catalog(''))
+        Catalog.add_jsbsim_props(self.jsbsim_exec.query_property_catalog(""))
 
         # set jsbsim integration time step
         dt = 1 / jsbsim_freq
@@ -54,12 +54,12 @@ class Simulation:
         success = self.jsbsim_exec.run_ic()
         self.propulsion_init_running(-1)
         if not success:
-            raise RuntimeError('JSBSim failed to init simulation conditions.')
+            raise RuntimeError("JSBSim failed to init simulation conditions.")
 
     def propulsion_init_running(self, i):
         propulsion = self.jsbsim_exec.get_propulsion()
         n = propulsion.get_num_engines()
-        if i>=0:
+        if i >= 0:
             if i >= n:
                 raise IndexError("Tried to initialize a non-existent engine!")
             propulsion.get_engine(i).init_running()
@@ -102,7 +102,7 @@ class Simulation:
         for _ in range(self.agent_interaction_steps):
             result = self.jsbsim_exec.run()
             if not result:
-                raise RuntimeError('JSBSim failed.')
+                raise RuntimeError("JSBSim failed.")
         return result
 
     def get_sim_time(self):
@@ -139,7 +139,7 @@ class Simulation:
 
         """
         if not len(props) == len(values):
-            raise ValueError('mismatch between properties and values size')
+            raise ValueError("mismatch between properties and values size")
         for prop, value in zip(props, values):
             self.set_property_value(prop, value)
 
@@ -152,15 +152,15 @@ class Simulation:
         :return : float
         """
         if isinstance(prop, Property):
-            if prop.access == 'R':
+            if prop.access == "R":
                 if prop.update:
                     prop.update(self)
             return self.jsbsim_exec.get_property_value(prop.name_jsbsim)
         elif isinstance(prop, CustomProperty):
-            if 'R' in prop.access and prop.read:
+            if "R" in prop.access and prop.read:
                 return prop.read(self)
             else:
-                raise RuntimeError(f'{prop} is not readable')
+                raise RuntimeError(f"{prop} is not readable")
         else:
             raise ValueError(f"prop type unhandled: {type(prop)} ({prop})")
 
@@ -182,14 +182,14 @@ class Simulation:
 
             self.jsbsim_exec.set_property_value(prop.name_jsbsim, value)
 
-            if 'W' in prop.access:
+            if "W" in prop.access:
                 if prop.update:
                     prop.update(self)
         elif isinstance(prop, CustomProperty):
-            if 'W' in prop.access and prop.write:
+            if "W" in prop.access and prop.write:
                 return prop.write(self, value)
             else:
-                raise RuntimeError(f'{prop} is not readable')
+                raise RuntimeError(f"{prop} is not readable")
         else:
             raise ValueError(f"prop type unhandled: {type(prop)} ({prop})")
 
@@ -199,27 +199,28 @@ class Simulation:
     def state_to_ic(self, state):
         init_conditions = {}
 
-        state_to_ic = {Catalog.position_lat_gc_deg: Catalog.ic_lat_gc_deg,
-                       Catalog.position_long_gc_deg: Catalog.ic_long_gc_deg,
-                       Catalog.position_h_sl_ft: Catalog.ic_h_sl_ft,
-                       Catalog.position_h_agl_ft: Catalog.ic_h_agl_ft,
-                       Catalog.position_terrain_elevation_asl_ft: Catalog.ic_terrain_elevation_ft,
-                       Catalog.attitude_psi_deg: Catalog.ic_psi_true_deg,
-                       Catalog.attitude_theta_deg: Catalog.ic_theta_deg,
-                       Catalog.attitude_phi_deg: Catalog.ic_phi_deg,
-                       Catalog.velocities_u_fps: Catalog.ic_u_fps,
-                       Catalog.velocities_v_fps: Catalog.ic_v_fps,
-                       Catalog.velocities_w_fps: Catalog.ic_w_fps,
-                       Catalog.velocities_p_rad_sec: Catalog.ic_p_rad_sec,
-                       Catalog.velocities_q_rad_sec: Catalog.ic_q_rad_sec,
-                       Catalog.velocities_r_rad_sec: Catalog.ic_r_rad_sec,
-                       }
+        state_to_ic = {
+            Catalog.position_lat_gc_deg: Catalog.ic_lat_gc_deg,
+            Catalog.position_long_gc_deg: Catalog.ic_long_gc_deg,
+            Catalog.position_h_sl_ft: Catalog.ic_h_sl_ft,
+            Catalog.position_h_agl_ft: Catalog.ic_h_agl_ft,
+            Catalog.position_terrain_elevation_asl_ft: Catalog.ic_terrain_elevation_ft,
+            Catalog.attitude_psi_deg: Catalog.ic_psi_true_deg,
+            Catalog.attitude_theta_deg: Catalog.ic_theta_deg,
+            Catalog.attitude_phi_deg: Catalog.ic_phi_deg,
+            Catalog.velocities_u_fps: Catalog.ic_u_fps,
+            Catalog.velocities_v_fps: Catalog.ic_v_fps,
+            Catalog.velocities_w_fps: Catalog.ic_w_fps,
+            Catalog.velocities_p_rad_sec: Catalog.ic_p_rad_sec,
+            Catalog.velocities_q_rad_sec: Catalog.ic_q_rad_sec,
+            Catalog.velocities_r_rad_sec: Catalog.ic_r_rad_sec,
+        }
 
         for prop, value in state.items():
-            if not re.match(r'^ic/', prop.name_jsbsim):
+            if not re.match(r"^ic/", prop.name_jsbsim):
                 if prop in state_to_ic:
                     init_conditions[state_to_ic[prop]] = value
-                elif 'RW' in prop.access:
+                elif "RW" in prop.access:
                     init_conditions[prop] = value
         return init_conditions
 

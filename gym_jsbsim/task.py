@@ -4,12 +4,13 @@ import gym
 from gym.spaces import Box, Discrete
 from gym_jsbsim.catalogs.catalog import Catalog
 
+
 class Task:
     """
 
-        A class to subclass in order to create a task with its own observation variables,
+    A class to subclass in order to create a task with its own observation variables,
 
-        action variables, termination conditions and agent_reward function.
+    action variables, termination conditions and agent_reward function.
 
     """
 
@@ -19,7 +20,7 @@ class Task:
     output = state_var
     jsbsim_freq = 60
     agent_interaction_steps = 5
-    aircraft_name = 'A320'
+    aircraft_name = "A320"
 
     def __init__(self):
 
@@ -29,8 +30,13 @@ class Task:
 
         # modify Catalog to have only the current task properties
         names_away = []
-        for name,prop in Catalog.items():
-            if not( prop in self.action_var or prop in self.state_var or prop in self.init_conditions or prop in self.output) :
+        for name, prop in Catalog.items():
+            if not (
+                prop in self.action_var
+                or prop in self.state_var
+                or prop in self.init_conditions
+                or prop in self.output
+            ):
                 names_away.append(name)
         for name in names_away:
             Catalog.pop(name)
@@ -64,7 +70,7 @@ class Task:
 
         for prop in self.state_var:
             if prop.spaces is Box:
-                space_tuple += (Box(low=np.array([prop.min]), high=np.array([prop.max]), dtype='float'),)
+                space_tuple += (Box(low=np.array([prop.min]), high=np.array([prop.max]), dtype="float"),)
             elif prop.spaces is Discrete:
                 space_tuple += (Discrete(prop.max - prop.min + 1),)
         return gym.spaces.Tuple(space_tuple)
@@ -79,15 +85,15 @@ class Task:
 
         for prop in self.action_var:
             if prop.spaces is Box:
-                space_tuple += (Box(low=np.array([prop.min]), high=np.array([prop.max]), dtype='float'),)
+                space_tuple += (Box(low=np.array([prop.min]), high=np.array([prop.max]), dtype="float"),)
             elif prop.spaces is Discrete:
                 space_tuple += (Discrete(prop.max - prop.min + 1),)
         return gym.spaces.Tuple(space_tuple)
 
-    def render(self, sim, mode='human', **kwargs):
+    def render(self, sim, mode="human", **kwargs):
         pass
 
-    def define_aircraft(self, aircraft_name='A320'):
+    def define_aircraft(self, aircraft_name="A320"):
         self.aircraft_name = aircraft_name
 
     def define_state(self, states=None):
@@ -96,7 +102,7 @@ class Task:
     def define_action(self, actions=None):
         self.action_var = actions
 
-    def define_init_conditions(self, init_conditions = None):
+    def define_init_conditions(self, init_conditions=None):
         self.init_conditions = init_conditions
 
     def define_output(self, output=None):
